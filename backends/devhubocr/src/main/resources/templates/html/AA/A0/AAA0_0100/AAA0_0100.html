@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - DevHub OCR</title>
+    <!-- Local Tabler / Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="antialiased">
+
+    <div class="page">
+        <!-- Sidebar (common) -->
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <!-- Top header (common) -->
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl py-5">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 th:text="${pageTitle}">Quản lý Role</h3>
+                                    <div th:if="${success}" class="alert alert-success mt-2" th:text="${success}"></div>
+                                    <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
+                                    <p class="text-muted">Path: <strong th:text="${pathKey}">AA.A0.AAA0_0100</strong></p>
+
+                                    <div class="mb-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Roles (gán cho path)</label>
+                                                <form method="post" th:action="@{/AA/A0/AAA0_0100/path/update-roles}">
+                                                    <div class="d-flex flex-wrap">
+                                                        <label th:each="r : ${allRoles}" class="form-check me-3">
+                                                            <input class="form-check-input" type="checkbox" name="roles" th:value="${r.role}"
+                                                                   th:checked="${rolesForPath.contains(r.role)}" />
+                                                            <span class="form-check-label" th:text="${r.role}">ROLE</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <button class="btn btn-primary">Cập nhật roles cho path</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Quản lý Roles (danh sách)</label>
+                                                <div class="mb-2">
+                                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/role/create}" class="row g-2">
+                                                        <div class="col-5"><input type="text" name="role" class="form-control" placeholder="Tên role (VD: ADMIN)" required /></div>
+                                                        <div class="col-5"><input type="text" name="description" class="form-control" placeholder="Mô tả (tuỳ chọn)" /></div>
+                                                        <div class="col-2"><button class="btn btn-success">Tạo</button></div>
+                                                    </form>
+                                                </div>
+
+                                                <div style="max-height:220px; overflow:auto;">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr><th>Role</th><th>Mô tả</th><th></th></tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr th:each="r : ${allRoles}">
+                                                                <td th:text="${r.role}">ROLE</td>
+                                                                <td th:text="${r.description}">Mô tả</td>
+                                                                <td>
+                                                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/role/delete}">
+                                                                        <input type="hidden" name="role" th:value="${r.role}" />
+                                                                        <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                                                                    </form>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr />
+
+                                    <h5>Người dùng</h5>
+                                    <p class="text-muted small">Gán role cho user theo email</p>
+
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Email</th>
+                                                <th>Name</th>
+                                                <th>Roles</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="u : ${users}" th:with="uroles=${userRolesMap[u.email]}">
+                                                <td th:text="${u.email}">email@example.com</td>
+                                                <td th:text="${u.first_name} + ' ' + ${u.last_name}">Tên</td>
+                                                <td>
+                                                    <span th:if="${uroles == null || #lists.isEmpty(uroles)}" class="text-muted">(chưa có role)</span>
+                                                    <span th:each="r : ${uroles}" class="badge bg-primary me-1" style="color:white" th:text="${r}">ROLE</span>
+                                                </td>
+                                                <td>
+                                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/user/update-roles}">
+                                                        <input type="hidden" name="email" th:value="${u.email}" />
+                                                        <div class="d-flex flex-wrap">
+                                                            <label th:each="r : ${allRoles}" class="form-check me-2">
+                                                                <input class="form-check-input" type="checkbox" name="roles" th:value="${r.role}"
+                                                                       th:attr="checked=${uroles != null} ? ${uroles.contains(r.role)} : false" />
+                                                                <span class="form-check-label" th:text="${r.role}">ROLE</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <button class="btn btn-sm btn-primary">Cập nhật roles</button>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="common/footer :: footer"></div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

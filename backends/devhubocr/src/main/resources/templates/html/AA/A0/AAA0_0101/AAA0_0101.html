@@ -1,0 +1,191 @@
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - DevHub OCR</title>
+    <!-- Local Tabler / Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="antialiased">
+
+    <div class="page">
+        <!-- Sidebar (common) -->
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <!-- Top header (common) -->
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl py-5">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <h1>Menu Management</h1>
+                            <div class="row">
+                                <div class="col-12 col-lg-6">
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Add a new menu item</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Creation form -->
+                                            <div th:if="${editMenu == null}">
+                                                <form method="post" th:action="@{/AA/A0/AAA0_0101/menu/create}">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Title</label>
+                                                        <input name="title" class="form-control" placeholder="Menu title" required />
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Icon</label>
+                                                        <input name="icon" class="form-control" placeholder="e.g. home, package, layout-2" list="icon-list" />
+                                                        <datalist id="icon-list">
+                                                            <option value="home"></option>
+                                                            <option value="package"></option>
+                                                            <option value="layout-2"></option>
+                                                            <option value="star"></option>
+                                                            <option value="settings"></option>
+                                                            <option value="users"></option>
+                                                            <option value="shield"></option>
+                                                        </datalist>
+                                                        <small class="form-hint">Choose a Tabler icon name or provide your SVG filename.</small>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Path (URI)</label>
+                                                        <input name="path" class="form-control" placeholder="/AA/A0/AAA0_0101/..." />
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Parent</label>
+                                                        <select name="parentId" class="form-select">
+                                                            <option th:value="" th:text="'-- Top level --'"></option>
+                                                            <option th:each="pm : ${allMenus}" th:value="${pm.id}" th:text="${pm.title}"></option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Roles (select multiple)</label>
+                                                        <select name="roles" class="form-select" multiple size="5">
+                                                            <option th:each="r : ${allRoles}" th:value="${r.role}" th:text="${r.role + (r.description != null ? ' - ' + r.description : '')}"></option>
+                                                        </select>
+                                                        <small class="form-hint">Hold Ctrl (or Cmd) to select multiple roles. Roles will be saved as comma-separated.</small>
+                                                    </div>
+
+                                                    <div class="d-flex gap-2">
+                                                        <button type="submit" class="btn btn-primary">Create</button>
+                                                        <a class="btn btn-link" th:href="@{/AA/A0/AAA0_0101/}">Reset</a>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Edit form -->
+                                            <div th:if="${editMenu != null}">
+                                                <form method="post" th:action="@{/AA/A0/AAA0_0101/menu/update}">
+                                                    <input type="hidden" name="id" th:value="${editMenu.id}" />
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Title</label>
+                                                        <input name="title" class="form-control" placeholder="Menu title" required th:value="${editMenu.title}" />
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Icon</label>
+                                                        <input name="icon" class="form-control" placeholder="e.g. home, package, layout-2" list="icon-list" th:value="${editMenu.icon}" />
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Path (URI)</label>
+                                                        <input name="path" class="form-control" placeholder="/AA/A0/AAA0_0101/..." th:value="${editMenu.path}" />
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Parent</label>
+                                                        <select name="parentId" class="form-select">
+                                                            <option th:value="" th:text="'-- Top level --'"></option>
+                                                            <option th:each="pm : ${allMenus}"
+                                                                        th:value="${pm.id}"
+                                                                        th:text="${pm.title}"
+                                                                        th:selected="${editMenu.parent_id != null and pm.id == editMenu.parent_id}"></option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Roles (select multiple)</label>
+                                                        <select name="roles" class="form-select" multiple size="5">
+                                <option th:each="r : ${allRoles}"
+                                    th:value="${r.role}"
+                                    th:text="${r.role + (r.description != null ? ' - ' + r.description : '')}"
+                                    th:selected="${editRoles != null and #arrays.contains(editRoles, r.role)}"></option>
+                                                        </select>
+                                                        <small class="form-hint">Hold Ctrl (or Cmd) to select multiple roles. Roles will be saved as comma-separated.</small>
+                                                    </div>
+
+                                                    <div class="d-flex gap-2">
+                                                        <button type="submit" class="btn btn-success">Save changes</button>
+                                                        <a class="btn btn-link" th:href="@{/AA/A0/AAA0_0101/}">Cancel</a>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6">
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Existing menus</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-vcenter">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Title</th>
+                                                            <th>Icon</th>
+                                                            <th>Path</th>
+                                                            <th>Parent</th>
+                                                            <th>Roles</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr th:each="m : ${allMenus}">
+                                                            <td th:text="${m.id}"></td>
+                                                            <td th:text="${m.title}"></td>
+                                                            <td th:text="${m.icon}"></td>
+                                                            <td><code th:text="${m.path}"></code></td>
+                                                            <td th:text="${m.parent_id}"></td>
+                                                            <td th:text="${m.roles}"></td>
+                                                            <td>
+                                                                <a class="btn btn-sm btn-outline-secondary" th:href="@{/AA/A0/AAA0_0101/(editId=${m.id})}">Edit</a>
+                                                                <form th:action="@{/AA/A0/AAA0_0101/menu/delete}" method="post" style="display:inline" onsubmit="return confirm('Are you sure you want to delete this menu item?');">
+                                                                    <input type="hidden" name="id" th:value="${m.id}" />
+                                                                    <button type="submit" class="btn btn-sm btn-danger ms-1">Delete</button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="common/footer :: footer"></div>
+    </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

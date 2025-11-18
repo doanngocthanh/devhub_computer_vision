@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - DevHub OCR</title>
+    <!-- Local Tabler / Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="antialiased">
+
+    <div class="page">
+        <!-- Sidebar (common) -->
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <!-- Top header (common) -->
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl py-5">
+                    <div class="row g-4 mb-4">
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="common/footer :: footer"></div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

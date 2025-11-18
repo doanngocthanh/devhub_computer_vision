@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - DevHub OCR</title>
+    <!-- Local Tabler / Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="antialiased">
+
+    <div class="page">
+        <!-- Sidebar (common) -->
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <!-- Top header (common) -->
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl py-5">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <div class="page-pretitle">Tổng quan</div>
+                            <h2 class="page-title">DevHub OCR</h2>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-primary text-white avatar"> <i
+                                                    class="bi bi-file-earmark-text"></i></span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="font-weight-medium">2,543</div>
+                                            <div class="text-muted">Tài liệu xử lý</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-success text-white avatar"> <i
+                                                    class="bi bi-check2-circle"></i></span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="font-weight-medium">98.5%</div>
+                                            <div class="text-muted">Độ chính xác</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-info text-white avatar"> <i class="bi bi-clock"></i></span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="font-weight-medium">&lt;2s</div>
+                                            <div class="text-muted">Thời gian xử lý</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-warning text-white avatar"> <i
+                                                    class="bi bi-life-preserver"></i></span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="font-weight-medium">24/7</div>
+                                            <div class="text-muted">Sẵn sàng</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row row-deck row-cards">
+                        <div class="col-12 col-lg-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Xử lý OCR</h3>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Sử dụng module AAA0_0100 để xử lý ảnh và nhận dạng chữ.</p>
+                                    <a href="/AAA0_0100" class="btn btn-primary">Mở module OCR</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Thông tin hệ thống</h3>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-1">Phiên bản: v1.0.0</p>
+                                    <p class="mb-0">Trạng thái: <span class="badge bg-success">Hoạt động</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="common/footer :: footer"></div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

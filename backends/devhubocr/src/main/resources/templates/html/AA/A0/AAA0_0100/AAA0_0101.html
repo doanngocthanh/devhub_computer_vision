@@ -1,0 +1,89 @@
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - DevHub OCR</title>
+    <!-- Local Tabler / Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="antialiased">
+
+    <div class="page">
+        <!-- Sidebar (common) -->
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <!-- Top header (common) -->
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl py-5">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <h1>Menu Management</h1>
+                            <p>Add a new menu item</p>
+                            <form method="post" action="/admin/menu/create">
+                                <div>
+                                    <label>Title</label>
+                                    <input name="title" required />
+                                </div>
+                                <div>
+                                    <label>Icon</label>
+                                    <input name="icon" placeholder="icon-name or svg-file" />
+                                </div>
+                                <div>
+                                    <label>Path (URI)</label>
+                                    <input name="path" />
+                                </div>
+                                <div>
+                                    <label>Parent ID (optional)</label>
+                                    <input name="parentId" type="number" />
+                                </div>
+                                <div>
+                                    <label>Roles (comma-separated)</label>
+                                    <input name="roles" />
+                                </div>
+                                <button type="submit">Create</button>
+                            </form>
+
+                            <h2>Existing menus</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Icon</th>
+                                        <th>Path</th>
+                                        <th>Parent</th>                          
+                                        <th>Roles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="m : ${allMenus}">
+                                        <td th:text="${m.id}"></td>
+                                        <td th:text="${m.title}"></td>
+                                        <td th:text="${m.icon}"></td>
+                                        <td th:text="${m.path}"></td>
+                                        <td th:text="${m.parent_id}"></td>
+                                        <td th:text="${m.roles}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="common/footer :: footer"></div>
+    </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard - DevHub OCR</title>
+</head>
+<body th:replace="~{common/layout :: content(~{::div#page-content})}">
+    <div id="page-content">>
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="section-title mb-0">Dashboard</h1>
+                <p class="text-muted mt-2">Tổng quan về hệ thống DevHub OCR</p>
+            </div>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-start border-primary border-3">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">Tổng Module</h6>
+                        <h2 class="fw-bold mb-2">12</h2>
+                        <p class="text-muted small mb-0"><i class="bi bi-arrow-up"></i> 2 mới</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-start border-success border-3">
+                    <div class="card-body">
+                        <h6 class="card-title text-success">Xử lý Thành công</h6>
+                        <h2 class="fw-bold mb-2">2,543</h2>
+                        <p class="text-muted small mb-0"><i class="bi bi-arrow-up"></i> 142 hôm nay</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-start border-warning border-3">
+                    <div class="card-body">
+                        <h6 class="card-title text-warning">Đang xử lý</h6>
+                        <h2 class="fw-bold mb-2">47</h2>
+                        <p class="text-muted small mb-0"><i class="bi bi-hourglass-split"></i> Chờ xử lý</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-start border-danger border-3">
+                    <div class="card-body">
+                        <h6 class="card-title text-danger">Lỗi</h6>
+                        <h2 class="fw-bold mb-2">8</h2>
+                        <p class="text-muted small mb-0"><i class="bi bi-exclamation-circle"></i> Cần kiểm tra</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modules Row -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="mb-3">Danh sách Modules</h3>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">AAA0_0100 - OCR Module</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Module xử lý ảnh sử dụng công nghệ OCR để nhận dạng chữ</p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-2">Active</span>
+                            <span class="badge bg-info">v1.0</span>
+                        </div>
+                        <a href="/AAA0_0100" class="btn btn-primary btn-sm">Truy cập</a>
+                        <a href="#" class="btn btn-secondary btn-sm">Chi tiết</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Module mới</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted">Tạo module chức năng mới</p>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newModuleModal">
+                            <i class="bi bi-plus-circle"></i> Tạo Module
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Row -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Hoạt động gần đây</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Thời gian</th>
+                                        <th>Module</th>
+                                        <th>Hành động</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2025-11-17 10:30:45</td>
+                                        <td>AAA0_0100</td>
+                                        <td>Xử lý tài liệu</td>
+                                        <td><span class="badge bg-success">Thành công</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-11-17 09:15:20</td>
+                                        <td>AAA0_0100</td>
+                                        <td>Upload file</td>
+                                        <td><span class="badge bg-success">Thành công</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-11-16 16:45:10</td>
+                                        <td>AAA0_0100</td>
+                                        <td>Xử lý tài liệu</td>
+                                        <td><span class="badge bg-warning">Chờ xử lý</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-11-16 14:20:35</td>
+                                        <td>AAA0_0100</td>
+                                        <td>Xử lý tài liệu</td>
+                                        <td><span class="badge bg-danger">Lỗi</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Module Modal -->
+<div class="modal fade" id="newModuleModal" tabindex="-1" aria-labelledby="newModuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newModuleModalLabel">Tạo Module Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="moduleName" class="form-label">Tên Module</label>
+                        <input type="text" class="form-control" id="moduleName" placeholder="VD: AAA0_0101">
+                    </div>
+                    <div class="mb-3">
+                        <label for="moduleDescription" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="moduleDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary">Tạo</button>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</body>
+</html>
