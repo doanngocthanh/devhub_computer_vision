@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - DevHub OCR</title>
+    <!-- Local Tabler / Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="antialiased">
+
+    <div class="page">
+        <!-- Sidebar (common) -->
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <!-- Top header (common) -->
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl py-5">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex align-items-center">
+                                    <h3 class="card-title">Thông báo</h3>
+                                    <div class="ms-auto">
+                                        <a th:href="@{/AA/A0/AAA0_0104/send/test}" class="btn btn-sm btn-outline-primary">Gửi test</a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${notifications != null and #lists.isNotEmpty(notifications)}">
+                                        <ul class="list-group">
+                                            <li th:each="n : ${notifications}" class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <div class="fw-bold" th:text="${n.title}">Tiêu đề</div>
+                                                    <div class="text-muted" th:text="${n.message}">Nội dung</div>
+                                                    <small class="text-secondary" th:text="${n.created_at}">Ngày</small>
+                                                </div>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a th:href="@{/AA/A0/AAA0_0104/mark/read(deliveryId=${n.delivery_id})}" class="btn btn-light">Đánh dấu đã đọc</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div th:unless="${notifications != null and #lists.isNotEmpty(notifications)}">
+                                        <div class="alert alert-light">Không có thông báo.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="common/footer :: footer"></div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

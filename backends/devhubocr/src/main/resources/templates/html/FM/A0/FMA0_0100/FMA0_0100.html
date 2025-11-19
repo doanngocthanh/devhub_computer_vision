@@ -110,17 +110,16 @@
                         </a>
                       </div>
                     </div>
-
                     <div class="row g-3 mb-3">
                       <div class="col-md">
                         <label class="form-label">First name</label>
                         <input type="text" class="form-control" name="firstName"
-                          th:value="${profile == null ? '' : profile.firstName}">
+                          th:value="${profile == null ? '' : profile.firstName}" />
                       </div>
                       <div class="col-md">
                         <label class="form-label">Last name</label>
                         <input type="text" class="form-control" name="lastName"
-                          th:value="${profile == null ? '' : profile.lastName}">
+                          th:value="${profile == null ? '' : profile.lastName}" />
                       </div>
                     </div>
 
@@ -129,17 +128,17 @@
                       <div class="col-md">
                         <label class="form-label">Business Name</label>
                         <input type="text" class="form-control" name="businessName"
-                          th:value="${profile == null ? '' : profile.businessName}">
+                          th:value="${profile == null ? '' : profile.businessName}" />
                       </div>
                       <div class="col-md">
                         <label class="form-label">Business ID</label>
                         <input type="text" class="form-control" name="businessId"
-                          th:value="${profile == null ? '' : profile.businessId}">
+                          th:value="${profile == null ? '' : profile.businessId}" />
                       </div>
                       <div class="col-md">
                         <label class="form-label">Location</label>
                         <input type="text" class="form-control" name="location"
-                          th:value="${profile == null ? '' : profile.location}">
+                          th:value="${profile == null ? '' : profile.location}" />
                       </div>
                     </div>
 
@@ -148,14 +147,9 @@
                     <div class="row g-2 mb-3">
                       <div class="col-auto">
                         <input type="text" class="form-control w-auto" name="email"
-                          th:value="${user == null ? '' : user.email}" readonly>
+                          th:value="${user == null ? '' : user.email}" readonly />
                       </div>
-                      <div class="col-auto">
-                        <a href="#" class="btn btn-primary">
-                          <i class="fa-solid fa-pen-to-square me-2"></i>
-                          Change
-                        </a>
-                      </div>
+
                     </div>
 
                     <h3 class="card-title mt-4">Password</h3>
@@ -175,7 +169,7 @@
                     <div class="mb-3">
                       <label class="form-check form-switch form-switch-lg">
                         <input class="form-check-input" type="checkbox" name="publicProfile"
-                          th:checked="${profile != null and profile.publicProfile}">
+                          th:checked="${profile != null and profile.publicProfile}" />
                         <span class="form-check-label form-check-label-on">You're currently visible</span>
                         <span class="form-check-label form-check-label-off">You're currently invisible</span>
                       </label>
@@ -203,28 +197,28 @@
 
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" checked>
+                        <input class="form-check-input" type="checkbox" checked />
                         <span class="form-check-label">
                           <i class="fa-solid fa-file-arrow-up text-muted me-2"></i>
                           New document uploaded
                         </span>
                       </label>
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" checked>
+                        <input class="form-check-input" type="checkbox" checked />
                         <span class="form-check-label">
                           <i class="fa-solid fa-circle-check text-muted me-2"></i>
                           OCR processing completed
                         </span>
                       </label>
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox">
+                        <input class="form-check-input" type="checkbox" />
                         <span class="form-check-label">
                           <i class="fa-solid fa-chart-line text-muted me-2"></i>
                           Weekly summary report
                         </span>
                       </label>
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" checked>
+                        <input class="form-check-input" type="checkbox" checked />
                         <span class="form-check-label">
                           <i class="fa-solid fa-shield-halved text-muted me-2"></i>
                           Account security alerts
@@ -237,14 +231,14 @@
 
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" checked>
+                        <input class="form-check-input" type="checkbox" checked />
                         <span class="form-check-label">
                           <i class="fa-solid fa-mobile-screen text-muted me-2"></i>
                           Enable push notifications
                         </span>
                       </label>
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox">
+                        <input class="form-check-input" type="checkbox" />
                         <span class="form-check-label">
                           <i class="fa-solid fa-volume-high text-muted me-2"></i>
                           Sound alerts
@@ -559,7 +553,7 @@
               <label class="form-label">Current Password</label>
               <div class="input-group input-group-flat">
                 <input type="password" class="form-control" name="currentPassword" id="currentPassword"
-                  placeholder="Enter current password" required>
+                  placeholder="Enter current password" required />
                 <span class="input-group-text">
                   <a href="#" class="link-secondary" title="Show password"
                     onclick="togglePassword('currentPassword', this); return false;">
@@ -572,7 +566,7 @@
               <label class="form-label">New Password</label>
               <div class="input-group input-group-flat">
                 <input type="password" class="form-control" name="newPassword" id="newPassword"
-                  placeholder="Enter new password" required>
+                  placeholder="Enter new password" required />
                 <span class="input-group-text">
                   <a href="#" class="link-secondary" title="Show password"
                     onclick="togglePassword('newPassword', this); return false;">
@@ -588,7 +582,7 @@
               <label class="form-label">Confirm New Password</label>
               <div class="input-group input-group-flat">
                 <input type="password" class="form-control" name="confirmPassword" id="confirmPassword"
-                  placeholder="Confirm new password" required>
+                  placeholder="Confirm new password" required />
                 <span class="input-group-text">
                   <a href="#" class="link-secondary" title="Show password"
                     onclick="togglePassword('confirmPassword', this); return false;">

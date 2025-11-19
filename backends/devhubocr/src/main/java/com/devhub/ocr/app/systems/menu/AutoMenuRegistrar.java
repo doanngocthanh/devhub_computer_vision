@@ -58,7 +58,7 @@ public class AutoMenuRegistrar implements ApplicationContextAware {
                         if (parentRow == null) {
                             // create parent stub (title fallback to parent path)
                             String rolesCsvParent = "";
-                            menuService.createMenu(ppath, "", ppath, null, rolesCsvParent);
+                            menuService.createMenu(ppath, "", ppath, null, rolesCsvParent, null, true);
                             // mark parent as processed
                             processed.add(ppath);
                             parentRow = menuService.getMenuByPath(ppath);
@@ -79,7 +79,7 @@ public class AutoMenuRegistrar implements ApplicationContextAware {
                     Map<String, Object> existing = menuService.getMenuByPath(path);
                     String rolesCsv = String.join(",", a.roles());
                     if (existing == null) {
-                        boolean ok = menuService.createMenu(a.title(), a.icon(), path, parent, rolesCsv);
+                        boolean ok = menuService.createMenu(a.title(), a.icon(), path, parent, rolesCsv, null, true);
                         if (ok) {
                             logger.info("Auto-registered menu for bean {} path={}", bean.getClass().getName(), path);
                             processed.add(path);
@@ -88,7 +88,7 @@ public class AutoMenuRegistrar implements ApplicationContextAware {
                         // update parent/title/icon/roles to keep in sync
                         try {
                             Integer existingId = Integer.valueOf(String.valueOf(existing.get("id")));
-                            menuService.updateMenu(existingId, a.title(), a.icon(), path, parent, rolesCsv);
+                            menuService.updateMenu(existingId, a.title(), a.icon(), path, parent, rolesCsv, null, true);
                             processed.add(path);
                         } catch (Exception ex) {
                             logger.warn("Failed to update existing menu {}: {}", path, ex.getMessage());

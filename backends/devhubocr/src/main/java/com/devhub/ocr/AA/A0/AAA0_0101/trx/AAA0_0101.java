@@ -50,12 +50,14 @@ public class AAA0_0101 {
                              @RequestParam(required = false) String icon,
                              @RequestParam(required = false) String path,
                              @RequestParam(required = false) Integer parentId,
-                             @RequestParam(required = false) String[] roles) {
+                             @RequestParam(required = false) String[] roles,
+                             @RequestParam(required = false, defaultValue = "0") Integer orderNum,
+                             @RequestParam(required = false, defaultValue = "true") Boolean isActive) {
         String rolesCsv = "";
         if (roles != null && roles.length > 0) {
             rolesCsv = String.join(",", roles);
         }
-        menuService.createMenu(title, icon, path, parentId, rolesCsv);
+        menuService.createMenu(title, icon, path, parentId, rolesCsv, orderNum, isActive);
         return "redirect:/AA/A0/AAA0_0101/?created=1";
     }
 
@@ -65,12 +67,14 @@ public class AAA0_0101 {
                              @RequestParam(required = false) String icon,
                              @RequestParam(required = false) String path,
                              @RequestParam(required = false) Integer parentId,
-                             @RequestParam(required = false) String[] roles) {
+                             @RequestParam(required = false) String[] roles,
+                             @RequestParam(required = false, defaultValue = "0") Integer orderNum,
+                             @RequestParam(required = false, defaultValue = "true") Boolean isActive) {
         String rolesCsv = "";
         if (roles != null && roles.length > 0) {
             rolesCsv = String.join(",", roles);
         }
-        menuService.updateMenu(id, title, icon, path, parentId, rolesCsv);
+        menuService.updateMenu(id, title, icon, path, parentId, rolesCsv, orderNum, isActive);
         return "redirect:/AA/A0/AAA0_0101/?updated=1";
     }
 

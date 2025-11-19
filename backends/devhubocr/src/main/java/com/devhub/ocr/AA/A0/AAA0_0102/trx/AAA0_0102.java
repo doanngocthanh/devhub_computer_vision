@@ -14,7 +14,6 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/AA/A0/AAA0_0102")
-@AutoMenu(title = "Hệ Thống Quản Lý Menu", icon = "null", path = "/AA/A0/AAA0_0102/", roles = {})
 public class AAA0_0102 {
 
     private final RoleService roleService;
@@ -53,7 +52,7 @@ public class AAA0_0102 {
                              @RequestParam(required = false) String[] roles) {
         String rolesCsv = "";
         if (roles != null && roles.length > 0) rolesCsv = String.join(",", roles);
-        menuService.createMenu(title, icon, path, parentId, rolesCsv);
+        menuService.createMenu(title, icon, path, parentId, rolesCsv, null, true);
         return "redirect:/AA/A0/AAA0_0102/?created=1";
     }
 
@@ -66,7 +65,7 @@ public class AAA0_0102 {
                              @RequestParam(required = false) String[] roles) {
         String rolesCsv = "";
         if (roles != null && roles.length > 0) rolesCsv = String.join(",", roles);
-        menuService.updateMenu(id, title, icon, path, parentId, rolesCsv);
+        menuService.updateMenu(id, title, icon, path, parentId, rolesCsv, null, true);
         return "redirect:/AA/A0/AAA0_0102/?updated=1";
     }
 

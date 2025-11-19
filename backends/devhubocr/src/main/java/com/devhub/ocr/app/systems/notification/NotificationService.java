@@ -1,0 +1,122 @@
+package com.devhub.ocr.app.systems.notification;
+
+import com.devhub.ocr.app.plugins.database.DatabasePlugin;
+import com.devhub.ocr.auth.mod.RoleService;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.*;
+
+@Service
+public class NotificationService {
+
+    private final DatabasePlugin db;
+    private final RoleService roleService;
+
+    public NotificationService(DatabasePlugin db, RoleService roleService) {
+        this.db = db;
+        this.roleService = roleService;
+        ensureTables();
+    }
+
+    private void ensureTables() {
+        try {
+            db.execute("CREATE TABLE IF NOT EXISTS notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, message TEXT NOT NULL, data TEXT, created_at TEXT NOT NULL, actor_id INTEGER)", null);
+            db.execute("CREATE TABLE IF NOT EXISTS notification_user (id INTEGER PRIMARY KEY AUTOINCREMENT, notification_id INTEGER NOT NULL, user_id INTEGER NOT NULL, is_read INTEGER DEFAULT 0, read_at TEXT)", null);
+            db.execute("CREATE INDEX IF NOT EXISTS idx_notification_user_user ON notification_user(user_id)", null);
+        } catch (Exception ex) {
+            // ignore
+        }
+    }
+
+    /**
+     * Send a notification to a specific user. Returns true when saved.
+     */
+    public boolean sendToUser(Long userId, String title, String message, String dataJson, Long actorId) {
+        if (userId == null) return false;
+        Map<String, Object> p = new HashMap<>();
+        p.put("t", title == null ? "" : title);
+        p.put("m", message == null ? "" : message);
+        p.put("d", dataJson == null ? "" : dataJson);
+        p.put("c", Instant.now().toString());
+        p.put("a", actorId);
+        db.execute("INSERT INTO notifications(title, message, data, created_at, actor_id) VALUES(:t, :m, :d, :c, :a)", p);
+
+        // obtain last id
+        List<Map<String, Object>> rows = db.query("SELECT last_insert_rowid() as id", null);
+        if (rows == null || rows.isEmpty()) return false;
+        Object nid = rows.get(0).get("id");
+        if (nid == null) return false;
+        Map<String, Object> pu = new HashMap<>();
+        pu.put("nid", nid);
+        pu.put("uid", userId);
+        db.execute("INSERT INTO notification_user(notification_id, user_id, is_read) VALUES(:nid, :uid, 0)", pu);
+        return true;
+    }
+
+    /**
+     * Send notification to all users who have the given role.
+     */
+    public int sendToRole(String role, String title, String message, String dataJson, Long actorId) {
+        if (role == null || role.trim().isEmpty()) return 0;
+        // find user ids for role
+        List<Map<String, Object>> users = db.query("SELECT u.id FROM users u JOIN users_roles ur ON ur.user_id = u.id WHERE ur.role = :r", Map.of("r", role));
+        if (users == null || users.isEmpty()) return 0;
+        int total = 0;
+        for (Map<String, Object> u : users) {
+            Object id = u.get("id");
+            if (id == null) continue;
+            try {
+                boolean ok = sendToUser(Long.parseLong(String.valueOf(id)), title, message, dataJson, actorId);
+                if (ok) total++;
+            } catch (Exception ignored) {}
+        }
+        return total;
+    }
+
+    /**
+     * List notifications for a user (their own + global if desired). Paginated.
+     */
+    public List<Map<String, Object>> getNotificationsForUser(Long userId, int limit, int offset) {
+        if (userId == null) return Collections.emptyList();
+        // join notifications -> notification_user
+        String sql = "SELECT n.id as id, n.title as title, n.message as message, n.data as data, nu.is_read as is_read, nu.read_at as read_at, n.created_at as created_at, n.actor_id as actor_id, nu.id as delivery_id FROM notifications n JOIN notification_user nu ON nu.notification_id = n.id WHERE nu.user_id = :uid ORDER BY n.created_at DESC LIMIT :lim OFFSET :off";
+        Map<String, Object> p = new HashMap<>();
+        p.put("uid", userId);
+        p.put("lim", limit <= 0 ? 50 : limit);
+        p.put("off", Math.max(0, offset));
+        List<Map<String, Object>> rows = db.query(sql, p);
+        return rows == null ? Collections.emptyList() : rows;
+    }
+
+    public boolean markAsRead(Long deliveryId, Long userId) {
+        if (deliveryId == null || userId == null) return false;
+        Map<String, Object> p = Map.of("id", deliveryId, "uid", userId, "t", Instant.now().toString());
+        int res = db.execute("UPDATE notification_user SET is_read = 1, read_at = :t WHERE id = :id AND user_id = :uid", p);
+        return res > 0;
+    }
+
+    public int markAllRead(Long userId) {
+        if (userId == null) return 0;
+        Map<String, Object> p = Map.of("uid", userId, "t", Instant.now().toString());
+        int res = db.execute("UPDATE notification_user SET is_read = 1, read_at = :t WHERE user_id = :uid AND is_read = 0", p);
+        return res;
+    }
+
+    /**
+     * Count unread notifications for a user.
+     */
+    public int getUnreadCount(Long userId) {
+        if (userId == null) return 0;
+        Map<String, Object> p = Map.of("uid", userId);
+        List<Map<String, Object>> rows = db.query("SELECT COUNT(*) as cnt FROM notification_user WHERE user_id = :uid AND is_read = 0", p);
+        if (rows == null || rows.isEmpty()) return 0;
+        Object c = rows.get(0).get("cnt");
+        try {
+            return Integer.parseInt(String.valueOf(c));
+        } catch (Exception ex) {
+            return 0;
+        }
+    }
+
+}
