@@ -1,1 +1,8 @@
+version: '3.8'
+
+services:
+  devhub_placeholder:
+    image: busybox:latest
+    command: ["sh", "-c", "sleep 3650d"]
+    restart: unless-stopped
 services:

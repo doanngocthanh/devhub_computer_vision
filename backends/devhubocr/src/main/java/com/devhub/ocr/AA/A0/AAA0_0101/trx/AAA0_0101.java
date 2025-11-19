@@ -1,4 +1,4 @@
-package com.devhub.ocr.AA.A0.AAA0_0100.trx;
+package com.devhub.ocr.AA.A0.AAA0_0101.trx;
 
 import com.devhub.ocr.app.systems.menu.MenuService;
 import com.devhub.ocr.auth.mod.RoleService;
@@ -14,12 +14,12 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/AA/A0/AAA0_0101")
-public class AAA0_1001 {
+public class AAA0_0101 {
 
     private final MenuService menuService;
     private final RoleService roleService;
 
-    public AAA0_1001(MenuService menuService, RoleService roleService) {
+    public AAA0_0101(MenuService menuService, RoleService roleService) {
         this.menuService = menuService;
         this.roleService = roleService;
     }

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang chủ - DevHub OCR</title>
+  <!-- Local Tabler / Bootstrap CSS -->
+  <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+  <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+
+</head>
+
+<body class="antialiased">
+
+  <div class="page">
+    <!-- Sidebar (common) -->
+    <div th:replace="common/sidebar :: sidebar"></div>
+    <div class="page-wrapper">
+      <div th:replace="~{common/header :: header}"></div>
+
+      <!-- BEGIN PAGE HEADER -->
+      <div class="page-header d-print-none" aria-label="Page header">
+        <div class="container-xl">
+          <div class="row g-2 align-items-center">
+            <div class="col">
+              <h2 class="page-title">Account Settings</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END PAGE HEADER -->
+
+      <!-- BEGIN PAGE BODY -->
+      <div class="page-body">
+        <div class="container-xl">
+          <div class="card">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <a href="#tabs-my-account" class="nav-link active" data-bs-toggle="tab" aria-selected="true"
+                    role="tab">
+                    <i class="fa-solid fa-user me-2"></i>
+                    My Account
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a href="#tabs-notifications" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab"
+                    tabindex="-1">
+                    <i class="fa-solid fa-bell me-2"></i>
+                    Notifications
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a href="#tabs-connected-apps" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab"
+                    tabindex="-1">
+                    <i class="fa-solid fa-plug me-2"></i>
+                    Connected Apps
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a href="#tabs-plans" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab"
+                    tabindex="-1">
+                    <i class="fa-solid fa-box me-2"></i>
+                    Plans
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a href="#tabs-billing" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab"
+                    tabindex="-1">
+                    <i class="fa-solid fa-credit-card me-2"></i>
+                    Billing & Invoices
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card-body">
+              <div class="tab-content">
+
+                <!-- TAB 1: MY ACCOUNT -->
+                <div class="tab-pane active show" id="tabs-my-account" role="tabpanel">
+                  <h2 class="mb-4">My Account</h2>
+
+                  <form th:action="@{/FM/A0/FMA0_0100/update}" method="post" enctype="multipart/form-data">
+                    <h3 class="card-title">Profile Details</h3>
+
+                    <div class="row align-items-center mb-4">
+                      <div class="col-auto">
+                        <img th:if="${avatarUrl != null and avatarUrl != ''}" th:src="${avatarUrl}" alt="avatar"
+                          class="avatar avatar-xl" />
+                        <span th:if="${avatarUrl == null or avatarUrl == ''}" class="avatar avatar-xl"
+                          style="background-image: url(/static/avatars/000m.jpg)"></span>
+                      </div>
+                      <div class="col-auto">
+                        <input type="file" class="form-control" name="avatarFile" accept="image/*" style="display:none;"
+                          id="avatarInput" />
+                        <a href="#" class="btn btn-primary"
+                          onclick="document.getElementById('avatarInput').click(); return false;">
+                          <i class="fa-solid fa-upload me-2"></i>
+                          Change avatar
+                        </a>
+                      </div>
+                      <div class="col-auto">
+                        <a href="#" class="btn btn-ghost-danger">
+                          <i class="fa-solid fa-trash me-2"></i>
+                          Delete avatar
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                      <div class="col-md">
+                        <label class="form-label">First name</label>
+                        <input type="text" class="form-control" name="firstName"
+                          th:value="${profile == null ? '' : profile.firstName}">
+                      </div>
+                      <div class="col-md">
+                        <label class="form-label">Last name</label>
+                        <input type="text" class="form-control" name="lastName"
+                          th:value="${profile == null ? '' : profile.lastName}">
+                      </div>
+                    </div>
+
+                    <h3 class="card-title mt-4">Business Profile</h3>
+                    <div class="row g-3 mb-3">
+                      <div class="col-md">
+                        <label class="form-label">Business Name</label>
+                        <input type="text" class="form-control" name="businessName"
+                          th:value="${profile == null ? '' : profile.businessName}">
+                      </div>
+                      <div class="col-md">
+                        <label class="form-label">Business ID</label>
+                        <input type="text" class="form-control" name="businessId"
+                          th:value="${profile == null ? '' : profile.businessId}">
+                      </div>
+                      <div class="col-md">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-control" name="location"
+                          th:value="${profile == null ? '' : profile.location}">
+                      </div>
+                    </div>
+
+                    <h3 class="card-title mt-4">Email</h3>
+                    <p class="text-muted">This contact will be shown to others publicly, so choose it carefully.</p>
+                    <div class="row g-2 mb-3">
+                      <div class="col-auto">
+                        <input type="text" class="form-control w-auto" name="email"
+                          th:value="${user == null ? '' : user.email}" readonly>
+                      </div>
+                      <div class="col-auto">
+                        <a href="#" class="btn btn-primary">
+                          <i class="fa-solid fa-pen-to-square me-2"></i>
+                          Change
+                        </a>
+                      </div>
+                    </div>
+
+                    <h3 class="card-title mt-4">Password</h3>
+                    <p class="text-muted">You can set a permanent password if you don't want to use temporary login
+                      codes.</p>
+                    <div class="mb-3">
+                      <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#modal-password">
+                        <i class="fa-solid fa-key me-2"></i>
+                        Set new password
+                      </button>
+                    </div>
+
+                    <h3 class="card-title mt-4">Public profile</h3>
+                    <p class="text-muted">Making your profile public means that anyone on the network will be able to
+                      find you.</p>
+                    <div class="mb-3">
+                      <label class="form-check form-switch form-switch-lg">
+                        <input class="form-check-input" type="checkbox" name="publicProfile"
+                          th:checked="${profile != null and profile.publicProfile}">
+                        <span class="form-check-label form-check-label-on">You're currently visible</span>
+                        <span class="form-check-label form-check-label-off">You're currently invisible</span>
+                      </label>
+                    </div>
+
+                    <div class="card-footer bg-transparent mt-4">
+                      <div class="btn-list justify-content-end">
+                        <a href="#" class="btn">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                          <i class="fa-solid fa-floppy-disk me-2"></i>
+                          Save changes
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- TAB 2: NOTIFICATIONS -->
+                <div class="tab-pane" id="tabs-notifications" role="tabpanel">
+                  <h2 class="mb-4">Notification Preferences</h2>
+
+                  <form th:action="@{/FM/A0/FMA0_0100/update-notifications}" method="post">
+                    <h3 class="card-title">Email Notifications</h3>
+                    <p class="text-muted">Choose what notifications you want to receive via email.</p>
+
+                    <div class="mb-3">
+                      <label class="form-check">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <span class="form-check-label">
+                          <i class="fa-solid fa-file-arrow-up text-muted me-2"></i>
+                          New document uploaded
+                        </span>
+                      </label>
+                      <label class="form-check">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <span class="form-check-label">
+                          <i class="fa-solid fa-circle-check text-muted me-2"></i>
+                          OCR processing completed
+                        </span>
+                      </label>
+                      <label class="form-check">
+                        <input class="form-check-input" type="checkbox">
+                        <span class="form-check-label">
+                          <i class="fa-solid fa-chart-line text-muted me-2"></i>
+                          Weekly summary report
+                        </span>
+                      </label>
+                      <label class="form-check">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <span class="form-check-label">
+                          <i class="fa-solid fa-shield-halved text-muted me-2"></i>
+                          Account security alerts
+                        </span>
+                      </label>
+                    </div>
+
+                    <h3 class="card-title mt-4">Push Notifications</h3>
+                    <p class="text-muted">Receive push notifications on your devices.</p>
+
+                    <div class="mb-3">
+                      <label class="form-check">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <span class="form-check-label">
+                          <i class="fa-solid fa-mobile-screen text-muted me-2"></i>
+                          Enable push notifications
+                        </span>
+                      </label>
+                      <label class="form-check">
+                        <input class="form-check-input" type="checkbox">
+                        <span class="form-check-label">
+                          <i class="fa-solid fa-volume-high text-muted me-2"></i>
+                          Sound alerts
+                        </span>
+                      </label>
+                    </div>
+
+                    <div class="card-footer bg-transparent mt-4">
+                      <div class="btn-list justify-content-end">
+                        <a href="#" class="btn">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                          <i class="fa-solid fa-floppy-disk me-2"></i>
+                          Save preferences
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- TAB 3: CONNECTED APPS -->
+                <div class="tab-pane" id="tabs-connected-apps" role="tabpanel">
+                  <h2 class="mb-4">Connected Apps</h2>
+                  <p class="text-muted">Manage third-party applications connected to your account.</p>
+
+                  <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="avatar">
+                            <i class="fa-brands fa-google" style="font-size: 1.5rem;"></i>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <div class="fw-bold">Google Drive</div>
+                          <div class="text-muted">Connected on Jan 15, 2025</div>
+                        </div>
+                        <div class="col-auto">
+                          <span class="badge bg-success">Active</span>
+                        </div>
+                        <div class="col-auto">
+                          <a href="#" class="btn btn-ghost-danger btn-sm">
+                            <i class="fa-solid fa-link-slash me-1"></i>
+                            Disconnect
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="list-group-item">
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="avatar">
+                            <i class="fa-brands fa-dropbox" style="font-size: 1.5rem;"></i>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <div class="fw-bold">Dropbox</div>
+                          <div class="text-muted">Connected on Dec 20, 2024</div>
+                        </div>
+                        <div class="col-auto">
+                          <span class="badge bg-success">Active</span>
+                        </div>
+                        <div class="col-auto">
+                          <a href="#" class="btn btn-ghost-danger btn-sm">
+                            <i class="fa-solid fa-link-slash me-1"></i>
+                            Disconnect
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="list-group-item">
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="avatar">
+                            <i class="fa-brands fa-slack" style="font-size: 1.5rem;"></i>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <div class="fw-bold">Slack</div>
+                          <div class="text-muted">Not connected</div>
+                        </div>
+                        <div class="col-auto">
+                          <span class="badge bg-secondary">Inactive</span>
+                        </div>
+                        <div class="col-auto">
+                          <a href="#" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-link me-1"></i>
+                            Connect
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <a href="#" class="btn btn-primary">
+                      <i class="fa-solid fa-plus me-2"></i>
+                      Add new app
+                    </a>
+                  </div>
+                </div>
+
+                <!-- TAB 4: PLANS -->
+                <div class="tab-pane" id="tabs-plans" role="tabpanel">
+                  <h2 class="mb-4">Subscription Plans</h2>
+                  <p class="text-muted">Choose the plan that fits your needs.</p>
+
+                  <div class="row row-cards">
+                    <div class="col-md-4">
+                      <div class="card card-stacked">
+                        <div class="card-body text-center">
+                          <div class="text-uppercase text-muted fw-bold">Free</div>
+                          <div class="display-5 fw-bold my-3">$0</div>
+                          <ul class="list-unstyled lh-lg">
+                            <li><i class="fa-solid fa-check text-success me-2"></i><strong>100</strong> documents/month
+                            </li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i><strong>1GB</strong> storage</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i>Basic support</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i>Standard OCR</li>
+                          </ul>
+                          <div class="mt-4">
+                            <a href="#" class="btn btn-outline-primary w-100">Current Plan</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="card card-stacked border-primary">
+                        <div class="ribbon ribbon-top bg-primary">
+                          <i class="fa-solid fa-star me-1"></i>
+                          Popular
+                        </div>
+                        <div class="card-body text-center">
+                          <div class="text-uppercase text-muted fw-bold">Professional</div>
+                          <div class="display-5 fw-bold my-3">$29</div>
+                          <ul class="list-unstyled lh-lg">
+                            <li><i class="fa-solid fa-check text-success me-2"></i><strong>1,000</strong>
+                              documents/month</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i><strong>50GB</strong> storage</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i>Priority support</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i>Advanced OCR + AI</li>
+                          </ul>
+                          <div class="mt-4">
+                            <a href="#" class="btn btn-primary w-100">
+                              <i class="fa-solid fa-arrow-up me-2"></i>
+                              Upgrade Now
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="card card-stacked">
+                        <div class="card-body text-center">
+                          <div class="text-uppercase text-muted fw-bold">Enterprise</div>
+                          <div class="display-5 fw-bold my-3">$99</div>
+                          <ul class="list-unstyled lh-lg">
+                            <li><i class="fa-solid fa-check text-success me-2"></i><strong>Unlimited</strong> documents
+                            </li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i><strong>500GB</strong> storage</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i>24/7 support</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i>Custom AI models</li>
+                          </ul>
+                          <div class="mt-4">
+                            <a href="#" class="btn btn-outline-primary w-100">
+                              <i class="fa-solid fa-envelope me-2"></i>
+                              Contact Sales
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TAB 5: BILLING & INVOICES -->
+                <div class="tab-pane" id="tabs-billing" role="tabpanel">
+                  <h2 class="mb-4">Billing & Invoices</h2>
+
+                  <div class="card mb-3">
+                    <div class="card-header">
+                      <h3 class="card-title">Payment Method</h3>
+                    </div>
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <i class="fa-brands fa-cc-visa" style="font-size: 2rem; color: #1A1F71;"></i>
+                        </div>
+                        <div class="col">
+                          <div class="fw-bold">Visa ending in 4242</div>
+                          <div class="text-muted">Expires 12/2026</div>
+                        </div>
+                        <div class="col-auto">
+                          <a href="#" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>
+                            Update
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">Invoice History</h3>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table card-table table-vcenter">
+                        <thead>
+                          <tr>
+                            <th>Invoice</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th class="w-1"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><span class="text-muted">#INV-2025-001</span></td>
+                            <td>Jan 1, 2025</td>
+                            <td>$29.00</td>
+                            <td><span class="badge bg-success">Paid</span></td>
+                            <td>
+                              <a href="#" class="btn btn-sm btn-ghost-primary">
+                                <i class="fa-solid fa-download me-1"></i>
+                                Download
+                              </a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><span class="text-muted">#INV-2024-012</span></td>
+                            <td>Dec 1, 2024</td>
+                            <td>$29.00</td>
+                            <td><span class="badge bg-success">Paid</span></td>
+                            <td>
+                              <a href="#" class="btn btn-sm btn-ghost-primary">
+                                <i class="fa-solid fa-download me-1"></i>
+                                Download
+                              </a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><span class="text-muted">#INV-2024-011</span></td>
+                            <td>Nov 1, 2024</td>
+                            <td>$29.00</td>
+                            <td><span class="badge bg-success">Paid</span></td>
+                            <td>
+                              <a href="#" class="btn btn-sm btn-ghost-primary">
+                                <i class="fa-solid fa-download me-1"></i>
+                                Download
+                              </a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END PAGE BODY -->
+
+      <!--  BEGIN FOOTER  -->
+      <footer class="footer footer-transparent d-print-none">
+        <div class="container-xl">
+          <div class="row text-center align-items-center flex-row-reverse">
+            <div class="col-lg-auto ms-lg-auto">
+              <ul class="list-inline list-inline-dots mb-0">
+                <li class="list-inline-item"><a href="https://docs.tabler.io" target="_blank" class="link-secondary"
+                    rel="noopener">Documentation</a></li>
+                <li class="list-inline-item"><a href="./license.html" class="link-secondary">License</a></li>
+              </ul>
+            </div>
+            <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+              <ul class="list-inline list-inline-dots mb-0">
+                <li class="list-inline-item">
+                  Copyright © 2025
+                  <a href="." class="link-secondary">DevHub OCR</a>. All rights reserved.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+      <!--  END FOOTER  -->
+
+    </div>
+  </div>
+
+  <!-- MODAL SET PASSWORD -->
+  <div class="modal modal-blur fade" id="modal-password" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <form th:action="@{/FM/A0/FMA0_0100/change-password}" method="post">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-key me-2"></i>
+              Set New Password
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Current Password</label>
+              <div class="input-group input-group-flat">
+                <input type="password" class="form-control" name="currentPassword" id="currentPassword"
+                  placeholder="Enter current password" required>
+                <span class="input-group-text">
+                  <a href="#" class="link-secondary" title="Show password"
+                    onclick="togglePassword('currentPassword', this); return false;">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                </span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">New Password</label>
+              <div class="input-group input-group-flat">
+                <input type="password" class="form-control" name="newPassword" id="newPassword"
+                  placeholder="Enter new password" required>
+                <span class="input-group-text">
+                  <a href="#" class="link-secondary" title="Show password"
+                    onclick="togglePassword('newPassword', this); return false;">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                </span>
+              </div>
+              <small class="form-hint">
+                Password must be at least 8 characters long and contain letters and numbers.
+              </small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Confirm New Password</label>
+              <div class="input-group input-group-flat">
+                <input type="password" class="form-control" name="confirmPassword" id="confirmPassword"
+                  placeholder="Confirm new password" required>
+                <span class="input-group-text">
+                  <a href="#" class="link-secondary" title="Show password"
+                    onclick="togglePassword('confirmPassword', this); return false;">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-floppy-disk me-2"></i>
+              Save Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script th:src="@{/js/tabler.min.js}"></script>
+  <script th:src="@{/js/main.js}"></script>
+  <script>
+    // Toggle password visibility
+    function togglePassword(inputId, iconElement) {
+      const input = document.getElementById(inputId);
+      const icon = iconElement.querySelector('i');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+  </script>
+</body>
+
+</html>

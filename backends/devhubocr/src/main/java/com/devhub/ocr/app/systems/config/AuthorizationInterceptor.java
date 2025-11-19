@@ -6,6 +6,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.devhub.ocr.auth.mod.RoleService;
+import com.devhub.ocr.app.plugins.database.DatabasePlugin;
+import com.devhub.ocr.app.systems.auth.UserObject;
+import com.devhub.ocr.app.systems.auth.AuthContext;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,10 +25,13 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
     private final RoleService roleService;
     private final JWTVerifier verifier;
+    private final DatabasePlugin db;
 
     public AuthorizationInterceptor(RoleService roleService,
+                                    DatabasePlugin db,
                                     @Value("${devhub.jwt.secret:devhub-secret-do-not-use-in-prod}") String jwtSecret) {
         this.roleService = roleService;
+        this.db = db;
         this.verifier = JWT.require(Algorithm.HMAC256(jwtSecret)).build();
     }
 
@@ -81,8 +87,12 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
                 email = jwt.getSubject();
                 if (email != null && !email.isEmpty()) {
                     userRoles = roleService.getUserRolesByEmail(email);
-                    // highest privilege
-                    if (userRoles.contains("IT")) return true;
+                    // highest privilege: allow IT to bypass
+                    if (userRoles.contains("IT")) {
+                        // also populate current user context for convenience
+                        tryPopulateUser(email, request);
+                        return true;
+                    }
                 }
             } catch (JWTVerificationException ex) {
                 // ignore here; will be handled later if needed
@@ -128,6 +138,8 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             DecodedJWT jwt = verifier.verify(token);
             email = jwt.getSubject();
             if (email == null || email.isEmpty()) throw new JWTVerificationException("no subject");
+            // populate current user after a successful full verification
+            tryPopulateUser(email, request);
         } catch (JWTVerificationException ex) {
             deny(request, response);
             return false;
@@ -143,5 +155,32 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         // not allowed
         deny(request, response);
         return false;
+    }
+
+    private void tryPopulateUser(String email, HttpServletRequest request) {
+        try {
+            if (email == null || email.isEmpty()) return;
+            // load user row
+            List<Map<String, Object>> rows = db.query("SELECT id, email, first_name, last_name, created_at FROM users WHERE email = :e", Map.of("e", email));
+            if (rows != null && !rows.isEmpty()) {
+                Map<String, Object> row = rows.get(0);
+                UserObject u = UserObject.fromMap(row);
+                // attach roles from RoleService
+                Set<String> roles = roleService.getUserRolesByEmail(email);
+                u.setRoles(roles);
+                // set into thread-local and request attribute
+                AuthContext.set(u);
+                request.setAttribute("currentUser", u);
+            }
+        } catch (Exception ex) {
+            // don't fail the request due to user-loading problems
+            System.err.println("Warning: could not populate current user: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        // clear thread-local to avoid leaks
+        AuthContext.clear();
     }
 }

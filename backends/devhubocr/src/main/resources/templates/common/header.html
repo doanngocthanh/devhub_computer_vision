@@ -832,22 +832,38 @@
                 </div>
             </div>
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <span class="avatar avatar-sm" style="background-image: url(./static/avatars/002f.jpg)"> </span>
-                    <div class="d-none d-xl-block ps-2">
-                        <div>Kellie Skingley</div>
-                        <div class="mt-1 small text-secondary">Teacher</div>
+                <!-- When user is authenticated show avatar + menu -->
+                <div th:if="${currentUser != null}">
+                    <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown" aria-label="Open user menu">
+                        <span class="avatar avatar-sm bg-gray" th:text="${(currentUser.displayName != null and !#strings.isEmpty(currentUser.displayName)) ? #strings.substring(currentUser.displayName,0,1) : (currentUser.email != null and !#strings.isEmpty(currentUser.email) ? #strings.substring(currentUser.email,0,1) : 'U')}">U</span>
+                        <div class="d-none d-xl-block ps-2">
+                            <div th:text="${currentUser.displayName != null ? currentUser.displayName : currentUser.email}">User</div>
+                            <div class="mt-1 small text-secondary" th:text="${(currentUser.roles != null and !#lists.isEmpty(currentUser.roles)) ? currentUser.roles.iterator().next() : ''}"></div>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <a th:href="@{/FM/A0/FMA0_0100}" class="dropdown-item">Profile</a>
+                        <a th:href="@{/settings}" class="dropdown-item">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <form action="/auth/logout" method="post">
+                            <button type="submit" class="dropdown-item w-100 text-start">Logout</button>
+                        </form>
                     </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="#" class="dropdown-item">Status</a>
-                    <a href="./profile.html" class="dropdown-item">Profile</a>
-                    <a href="#" class="dropdown-item">Feedback</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="./settings.html" class="dropdown-item">Settings</a>
-                    <form action="/auth/logout" method="post">
-                        <button type="submit" class="dropdown-item w-100 text-start">Logout</button>
-                    </form>
+                </div>
+
+                <!-- When not authenticated show sign-in / register links -->
+                <div th:unless="${currentUser != null}">
+                    <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown" aria-label="Open user menu">
+                        <span class="avatar avatar-sm" style="background-image: url(/static/avatars/002f.jpg)"></span>
+                        <div class="d-none d-xl-block ps-2">
+                            <div><a th:href="@{/auth/sign-in}">Đăng nhập</a></div>
+                            <div class="mt-1 small text-secondary"><a th:href="@{/auth/register}">Đăng ký</a></div>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <a th:href="@{/auth/sign-in}" class="dropdown-item">Sign in</a>
+                        <a th:href="@{/auth/register}" class="dropdown-item">Register</a>
+                    </div>
                 </div>
             </div>
         </div>

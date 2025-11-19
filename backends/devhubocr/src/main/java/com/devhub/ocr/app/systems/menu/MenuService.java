@@ -33,6 +33,13 @@ public class MenuService {
     }
 
     public boolean createMenu(String title, String icon, String path, Integer parentId, String rolesCsv) {
+        // avoid duplicate menu rows for the same path
+        if (path != null) {
+            List<Map<String, Object>> exists = db.query("SELECT id FROM menus WHERE path = :p", Map.of("p", path));
+            if (exists != null && !exists.isEmpty()) {
+                return false;
+            }
+        }
         Map<String, Object> params = new HashMap<>();
         params.put("title", title);
         params.put("icon", icon == null ? "" : icon);
@@ -50,6 +57,13 @@ public class MenuService {
 
     public Map<String, Object> getMenuById(int id) {
         List<Map<String, Object>> rows = db.query("SELECT id, title, icon, path, parent_id, roles FROM menus WHERE id = :id", Map.of("id", id));
+        if (rows == null || rows.isEmpty()) return null;
+        return rows.get(0);
+    }
+
+    public Map<String, Object> getMenuByPath(String path) {
+        if (path == null) return null;
+        List<Map<String, Object>> rows = db.query("SELECT id, title, icon, path, parent_id, roles FROM menus WHERE path = :p LIMIT 1", Map.of("p", path));
         if (rows == null || rows.isEmpty()) return null;
         return rows.get(0);
     }

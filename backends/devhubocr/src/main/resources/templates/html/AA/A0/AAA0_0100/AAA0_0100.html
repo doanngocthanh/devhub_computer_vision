@@ -4,135 +4,294 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trang chủ - DevHub OCR</title>
-    <!-- Local Tabler / Bootstrap CSS -->
+    <title>Quản lý Roles & Permissions - DevHub OCR</title>
     <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
-    <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
 <body class="antialiased">
 
     <div class="page">
-        <!-- Sidebar (common) -->
-        <div th:replace="common/sidebar :: sidebar"></div>
+        <div th:replace="~{common/sidebar :: sidebar}"></div>
 
         <div class="page-wrapper">
-            <!-- Top header (common) -->
-            <div th:replace="common/header :: header"></div>
+            <div th:replace="~{common/header :: header}"></div>
 
             <div class="page-body">
-                <div class="container-xl py-5">
-                    <div class="row g-4 mb-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h3 th:text="${pageTitle}">Quản lý Role</h3>
-                                    <div th:if="${success}" class="alert alert-success mt-2" th:text="${success}"></div>
-                                    <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
-                                    <p class="text-muted">Path: <strong th:text="${pathKey}">AA.A0.AAA0_0100</strong></p>
+                <div class="container-xl">
+                    <!-- Page header -->
+                    <div class="page-header d-print-none mt-4">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle">🔒 Bảo mật & Phân quyền</div>
+                                <h2 class="page-title" th:text="${pageTitle}">Quản lý Roles</h2>
+                            </div>
+                        </div>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Roles (gán cho path)</label>
-                                                <form method="post" th:action="@{/AA/A0/AAA0_0100/path/update-roles}">
-                                                    <div class="d-flex flex-wrap">
-                                                        <label th:each="r : ${allRoles}" class="form-check me-3">
-                                                            <input class="form-check-input" type="checkbox" name="roles" th:value="${r.role}"
-                                                                   th:checked="${rolesForPath.contains(r.role)}" />
-                                                            <span class="form-check-label" th:text="${r.role}">ROLE</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <button class="btn btn-primary">Cập nhật roles cho path</button>
-                                                    </div>
-                                                </form>
+                    <!-- Alerts -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible mt-3" role="alert">
+                        <div class="d-flex">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M5 12l5 5l10 -10"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="alert-title">Thành công!</h4>
+                                <div class="text-muted" th:text="${success}"></div>
+                            </div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible mt-3" role="alert">
+                        <div class="d-flex">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 9v4"></path>
+                                    <path
+                                        d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                    </path>
+                                    <path d="M12 16h.01"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="alert-title">Có lỗi xảy ra</h4>
+                                <div class="text-muted" th:text="${error}"></div>
+                            </div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+
+                    <!-- Main Card with Tabs -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tab-roles" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">
+                                        🛡️ Roles
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tab-path" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">
+                                        🛣️ Path Permissions
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tab-users" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">
+                                        👥 Users
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tab-menus" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">
+                                        🔗 Menu Paths
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <!-- TAB 1: Roles Management -->
+                                <div class="tab-pane active show" id="tab-roles" role="tabpanel">
+                                    <h3 class="mb-3">Quản lý Roles</h3>
+                                    <p class="text-muted">Tạo và quản lý các roles trong hệ thống</p>
+                                    
+                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/role/create}" class="mb-4">
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-4">
+                                                <label class="form-label required">Tên role</label>
+                                                <input type="text" name="role" class="form-control" 
+                                                       placeholder="VD: ADMIN, USER, MANAGER" required />
                                             </div>
-
                                             <div class="col-md-6">
-                                                <label class="form-label">Quản lý Roles (danh sách)</label>
-                                                <div class="mb-2">
-                                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/role/create}" class="row g-2">
-                                                        <div class="col-5"><input type="text" name="role" class="form-control" placeholder="Tên role (VD: ADMIN)" required /></div>
-                                                        <div class="col-5"><input type="text" name="description" class="form-control" placeholder="Mô tả (tuỳ chọn)" /></div>
-                                                        <div class="col-2"><button class="btn btn-success">Tạo</button></div>
-                                                    </form>
-                                                </div>
+                                                <label class="form-label">Mô tả</label>
+                                                <input type="text" name="description" class="form-control" 
+                                                       placeholder="Mô tả vai trò và quyền hạn" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button class="btn btn-success w-100">➕ Tạo</button>
+                                            </div>
+                                        </div>
+                                    </form>
 
-                                                <div style="max-height:220px; overflow:auto;">
-                                                    <table class="table table-sm">
-                                                        <thead>
-                                                            <tr><th>Role</th><th>Mô tả</th><th></th></tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr th:each="r : ${allRoles}">
-                                                                <td th:text="${r.role}">ROLE</td>
-                                                                <td th:text="${r.description}">Mô tả</td>
-                                                                <td>
-                                                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/role/delete}">
-                                                                        <input type="hidden" name="role" th:value="${r.role}" />
-                                                                        <button class="btn btn-sm btn-outline-danger">Xóa</button>
-                                                                    </form>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
+                                    <hr />
+
+                                    <h4 class="mb-3">Danh sách roles (<span th:text="${#lists.size(allRoles)}">0</span>)</h4>
+                                    <div class="row g-2">
+                                        <div th:each="r : ${allRoles}" class="col-md-6 col-lg-4">
+                                            <div class="card card-sm">
+                                                <div class="card-body">
+                                                    <div class="row align-items-center">
+                                                        <div class="col">
+                                                            <div class="font-weight-medium" th:text="${r.role}">ROLE</div>
+                                                            <div class="text-muted small" th:text="${r.description ?: 'Không có mô tả'}">Mô tả</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <form method="post" th:action="@{/AA/A0/AAA0_0100/role/delete}" 
+                                                                  onsubmit="return confirm('Xóa role này? User đã gán role này sẽ bị mất quyền.');">
+                                                                <input type="hidden" name="role" th:value="${r.role}" />
+                                                                <button class="btn btn-sm btn-ghost-danger">🗑️</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <hr />
-
-                                    <h5>Người dùng</h5>
-                                    <p class="text-muted small">Gán role cho user theo email</p>
-
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Email</th>
-                                                <th>Name</th>
-                                                <th>Roles</th>
-                                                <th>Hành động</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="u : ${users}" th:with="uroles=${userRolesMap[u.email]}">
-                                                <td th:text="${u.email}">email@example.com</td>
-                                                <td th:text="${u.first_name} + ' ' + ${u.last_name}">Tên</td>
-                                                <td>
-                                                    <span th:if="${uroles == null || #lists.isEmpty(uroles)}" class="text-muted">(chưa có role)</span>
-                                                    <span th:each="r : ${uroles}" class="badge bg-primary me-1" style="color:white" th:text="${r}">ROLE</span>
-                                                </td>
-                                                <td>
-                                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/user/update-roles}">
-                                                        <input type="hidden" name="email" th:value="${u.email}" />
-                                                        <div class="d-flex flex-wrap">
-                                                            <label th:each="r : ${allRoles}" class="form-check me-2">
-                                                                <input class="form-check-input" type="checkbox" name="roles" th:value="${r.role}"
-                                                                       th:attr="checked=${uroles != null} ? ${uroles.contains(r.role)} : false" />
-                                                                <span class="form-check-label" th:text="${r.role}">ROLE</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="mt-2">
-                                                            <button class="btn btn-sm btn-primary">Cập nhật roles</button>
-                                                        </div>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
                                 </div>
+
+                                <!-- TAB 2: Path Permissions -->
+                                <div class="tab-pane" id="tab-path" role="tabpanel">
+                                    <h3 class="mb-3">Phân quyền cho Path</h3>
+                                    <p class="text-muted">Chọn roles nào được phép truy cập path này</p>
+                                    
+                                    <form method="post" th:action="@{/AA/A0/AAA0_0100/path/update-roles}">
+                                        <input type="hidden" name="pathKey" th:value="${pathKey}" />
+                                        
+                                        <div class="mb-4">
+                                            <label class="form-label">Path hiện tại</label>
+                                            <div class="input-group input-group-flat">
+                                                <span class="input-group-text">🔗</span>
+                                                <input type="text" class="form-control bg-white" th:value="${pathKey}" readonly />
+                                            </div>
+                                        </div>
+
+                                        <label class="form-label required">Chọn roles có quyền truy cập</label>
+                                        <div class="row g-2 mb-3">
+                                            <div th:each="r : ${allRoles}" class="col-md-6 col-lg-4">
+                                                <label class="form-selectgroup-item">
+                                                    <input type="checkbox" name="roles" th:value="${r.role}"
+                                                        th:checked="${rolesForPath.contains(r.role)}"
+                                                        class="form-selectgroup-input" />
+                                                    <span class="form-selectgroup-label d-flex align-items-center p-3">
+                                                        <span class="me-3">
+                                                            <span class="form-selectgroup-check"></span>
+                                                        </span>
+                                                        <span class="form-selectgroup-label-content">
+                                                            <strong th:text="${r.role}">ROLE</strong>
+                                                            <span class="d-block text-muted small" th:text="${r.description}">Mô tả</span>
+                                                        </span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <button class="btn btn-primary">💾 Cập nhật phân quyền</button>
+                                    </form>
+                                </div>
+
+                                <!-- TAB 3: Users -->
+                                <div class="tab-pane" id="tab-users" role="tabpanel">
+                                    <h3 class="mb-3">Gán Roles cho Người dùng</h3>
+                                    <p class="text-muted">Chọn roles cho từng người dùng trong hệ thống</p>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter">
+                                            <thead>
+                                                <tr>
+                                                    <th>Người dùng</th>
+                                                    <th>Roles đã gán</th>
+                                                    <th>Phân quyền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="u : ${users}" th:with="uroles=${userRolesMap[u.email]}">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="avatar me-2" th:text="${#strings.isEmpty(u.first_name) ? 'A' : #strings.substring(u.first_name, 0, 1)}">A</span>
+                                                            <div>
+                                                                <div class="font-weight-medium" th:text="${u.first_name + ' ' + u.last_name}">Tên</div>
+                                                                <div class="text-muted small">
+                                                                    📧 <span th:text="${u.email}">email@example.com</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div th:if="${uroles == null || #lists.isEmpty(uroles)}">
+                                                            <span class="badge bg-secondary-lt">Chưa có role</span>
+                                                        </div>
+                                                        <div th:unless="${uroles == null || #lists.isEmpty(uroles)}">
+                                                            <span th:each="r : ${uroles}" class="badge bg-blue-lt me-1" th:text="${r}">ROLE</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" th:action="@{/AA/A0/AAA0_0100/user/update-roles}">
+                                                            <input type="hidden" name="email" th:value="${u.email}" />
+                                                            <div class="row g-2 align-items-center">
+                                                                <div class="col">
+                                                                    <div class="d-flex flex-wrap gap-2">
+                                                                        <label th:each="r : ${allRoles}" class="form-check form-check-inline mb-0">
+                                                                            <input class="form-check-input" type="checkbox"
+                                                                                name="roles" th:value="${r.role}"
+                                                                                th:checked="${uroles != null ? uroles.contains(r.role) : false}" />
+                                                                            <span class="form-check-label" th:text="${r.role}">ROLE</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <button class="btn btn-sm btn-primary">✓ Cập nhật</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- TAB 4: Menu Paths -->
+                                <div class="tab-pane" id="tab-menus" role="tabpanel">
+                                    <h3 class="mb-3">Menu Paths</h3>
+                                    <p class="text-muted">Danh sách tất cả menu paths trong hệ thống</p>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Title</th>
+                                                    <th>Path</th>
+                                                    <th>Dotted Key</th>
+                                                    <th class="w-1">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="m : ${allMenus}">
+                                                    <td><span class="text-muted" th:text="${m.id}"></span></td>
+                                                    <td th:text="${m.title}"></td>
+                                                    <td><code class="text-break" th:text="${m.path}"></code></td>
+                                                    <td><code th:text="${m['dotted']}"></code></td>
+                                                    <td>
+                                                        <div class="btn-list">
+                                                            <a class="btn btn-sm btn-outline-primary"
+                                                                th:href="@{/AA/A0/AAA0_0102/(editId=${m.id})}">✏️ Edit</a>
+                                                            <a class="btn btn-sm btn-outline-success"
+                                                                th:href="@{/AA/A0/AAA0_0100(loadMenuId=${m.id})}">📥 Load</a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div th:replace="common/footer :: footer"></div>
+            <div th:replace="~{common/footer :: footer}"></div>
         </div>
     </div>
 

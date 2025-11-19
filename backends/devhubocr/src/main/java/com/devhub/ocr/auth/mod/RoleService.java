@@ -65,6 +65,40 @@ public class RoleService {
             // (migrations or later admin actions can fix roles).
             System.err.println("Warning: could not bootstrap user-role mapping: " + ex.getMessage());
         }
+
+        // Cleanup malformed path_roles rows where path contains comma-separated values
+        try {
+            List<Map<String, Object>> bad = db.query("SELECT id, path, role FROM path_roles WHERE path LIKE '%,%'", null);
+            if (bad != null) {
+                for (Map<String, Object> r : bad) {
+                    Object id = r.get("id");
+                    Object pathObj = r.get("path");
+                    Object roleObj = r.get("role");
+                    if (pathObj == null || roleObj == null || id == null) continue;
+                    String pathVal = String.valueOf(pathObj);
+                    String roleVal = String.valueOf(roleObj);
+                    String[] parts = pathVal.split(",");
+                    for (String p : parts) {
+                        String pp = p == null ? "" : p.trim();
+                        if (pp.isEmpty()) continue;
+                        // insert normalized row (use IGNORE to avoid duplicates)
+                        db.execute("INSERT OR IGNORE INTO path_roles(path, role) VALUES(:p, :r)", Map.of("p", pp, "r", roleVal));
+                    }
+                    // remove the malformed row by id
+                    db.execute("DELETE FROM path_roles WHERE id = :id", Map.of("id", id));
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Warning: could not cleanup path_roles: " + ex.getMessage());
+        }
+
+        // Remove duplicate (path,role) rows keeping the smallest id. This handles existing dupes
+        // and prevents stale duplicates from lingering.
+        try {
+            db.execute("DELETE FROM path_roles WHERE id NOT IN (SELECT MIN(id) FROM path_roles GROUP BY path, role)", null);
+        } catch (Exception ex) {
+            System.err.println("Warning: could not dedupe path_roles: " + ex.getMessage());
+        }
     }
 
     public List<Map<String, Object>> getAllRoles() {
@@ -145,7 +179,7 @@ public class RoleService {
     }
 
     public boolean addRoleToPath(String path, String role) {
-        int res = db.execute("INSERT INTO path_roles(path, role) VALUES(:p, :r)", Map.of("p", path, "r", role));
+        int res = db.execute("INSERT OR IGNORE INTO path_roles(path, role) VALUES(:p, :r)", Map.of("p", path, "r", role));
         return res > 0;
     }
 
@@ -181,14 +215,20 @@ public class RoleService {
     public boolean setRolesForPath(String path, Set<String> roles) {
         if (path == null || path.trim().isEmpty())
             return false;
-        db.execute("DELETE FROM path_roles WHERE path = :p", Map.of("p", path));
-        if (roles == null || roles.isEmpty())
-            return true;
-        int total = 0;
-        for (String r : roles) {
-            total += db.execute("INSERT INTO path_roles(path, role) VALUES(:p, :r)", Map.of("p", path, "r", r));
+
+        // Normalize: if multiple comma-separated paths are passed, apply to each
+        String[] parts = path.split(",");
+        for (String raw : parts) {
+            String p = raw == null ? "" : raw.trim();
+            if (p.isEmpty()) continue;
+            db.execute("DELETE FROM path_roles WHERE path = :p", Map.of("p", p));
+            if (roles == null || roles.isEmpty()) continue;
+            for (String r : roles) {
+                db.execute("INSERT OR IGNORE INTO path_roles(path, role) VALUES(:p, :r)", Map.of("p", p, "r", r));
+            }
         }
-        return total >= 0;
+        // return true if operation completed (insertion not strictly required)
+        return true;
     }
 
     /** Replace roles assigned to a user (by email) with the provided set. */

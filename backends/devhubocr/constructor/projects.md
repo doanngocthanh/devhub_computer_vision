@@ -36,15 +36,6 @@ Template tương ứng (ví dụ):
 
 Ghi chú: Trước đây có thử nghiệm với một layout controller-driven; hiện hướng dẫn thực tế là tiếp tục dùng full pages và chèn fragments (ít rủi ro hơn với Thymeleaf khi không dùng layout dialect tất-cả).
 
-3) Prototype: auto-code generation (autogen)
-- Vị trí code prototype:
-	- `src/main/java/com/devhub/ocr/core/codegen/mod/GeminiService.java` (mock)
-	- `src/main/java/com/devhub/ocr/core/codegen/mod/CodeGeneratorMod.java`
-	- `src/main/java/com/devhub/ocr/core/codegen/mod/TestRunnerMod.java`
-	- `src/main/java/com/devhub/ocr/core/codegen/trx/CodeGenController.java`
-
-- Kết quả sinh mẫu được ghi vào `generated/{moduleCode}/...` (không ghi đè `src/` thật). Đây là design an toàn cho MVP.
-
 4) Static files và uploads
 - Tabler CSS/JS được copy vào `static/css` và `static/js`.
 - Thêm `WebMvcConfig` để expose filesystem `uploads/` qua `/uploads/**` (mapping `file:./uploads/`).
@@ -59,7 +50,7 @@ Ghi chú: Trước đây có thử nghiệm với một layout controller-driven
 - `src/main/java/com/devhub/ocr/APP/systems/error/AppErrorController.java`
 - `src/main/resources/templates/common/sidebar.html`
 - `src/main/resources/templates/html/home.html` (đã sửa để include common fragments)
-- `src/main/java/com/devhub/ocr/core/codegen/...` (prototype files)
+
 
 7) Chạy & kiểm tra nhanh
 - Build:
@@ -71,21 +62,7 @@ Ghi chú: Trước đây có thử nghiệm với một layout controller-driven
 	```bash
 	./mvnw -DskipTests spring-boot:run
 	```
-- Endpoints prototype:
-	- POST `/admin/autogen/generate?module=AAA0_0200`  → tạo mẫu vào `generated/AAA0_0200`
-	- GET  `/admin/autogen/list`                      → liệt kê modules trong `generated/`
-	- GET  `/uploads/health`                          → kiểm tra mapping uploads
 
-8) Rủi ro & khuyến nghị
-- KHÔNG auto-push lên `main` khi generator hoạt động — dùng branch riêng hoặc lưu vào `generated/` để review.
-- Nâng cấp `TestRunnerMod` để thực hiện build/compile trong sandbox nếu muốn tự động chấp nhận code.
-- Không commit API keys; dùng env vars hoặc secret manager.
-
-9) Bước tiếp theo gợi ý
-- Nếu bạn muốn prototype tự động hơn: mình sẽ bổ sung tính năng tạo branch + commit (chưa push), và một trang admin để xem diff/approve.
-
---
- Phiên bản này cập nhật cho khớp với mã nguồn hiện tại và các thay đổi prototype đã được thêm vào repository.
  
 10) Quy tắc DB & migrations (mới)
 
@@ -123,18 +100,8 @@ Nội dung implement đã đề xuất:
 
 1. Backend
 	 - `MenuService` (dùng `DatabasePlugin`) để quản lý bảng `menus` và trả về cấu trúc cây (tree) cho template.
-	 - `AdminController` với endpoint:
-		 - GET `/admin/menu` — trang quản lý menu
-		 - POST `/admin/menu/create` — thêm menu item
-		 - GET `/admin/user-managers` — trang quản lý user managers
-		 - POST `/admin/user-managers/set` — gán/bỏ role quản lý cho user
-	 - `MenuModelAdvice` (`@ControllerAdvice`) để inject `menus` vào model cho tất cả view (để sidebar có thể render động).
+	 
 
-2. Frontend
-	 - Thêm templates:
-		 - `templates/html/admin/menu.html`
-		 - `templates/html/admin/user-managers.html`
-	 - Icon list: sử dụng một danh sách icon tối giản (tên icon Tabler hoặc tên file SVG trong `static/icons`).
 
 3. DB migration
 	 - Thêm migration SQL `db_local/sql/20251118__create_menus_table.sql` để tạo bảng `menus`.

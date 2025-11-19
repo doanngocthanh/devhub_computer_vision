@@ -7,7 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class init {
 
     @GetMapping("/init")
-    public String home() {
+    public String init() {
         return "html/init";
+    }
+    
+    @GetMapping("/")
+    public String home() {
+        return "html/home";
+    }
+    
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "html/dashboard";
     }
 }
