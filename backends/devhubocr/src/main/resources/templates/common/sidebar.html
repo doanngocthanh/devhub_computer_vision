@@ -1,7 +1,7 @@
 <!-- Sidebar fragment: vertical navigation with dynamic menu -->
 <aside th:fragment="sidebar" xmlns:th="http://www.thymeleaf.org"
   class="navbar navbar-vertical navbar-expand-sm position-absolute" data-bs-theme="dark">
-  
+
   <div class="container-fluid">
     <!-- BEGIN NAVBAR TOGGLER -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
@@ -9,18 +9,22 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <!-- END NAVBAR TOGGLER -->
-    
+
     <!-- BEGIN NAVBAR LOGO -->
     <div class="navbar-brand navbar-brand-autodark">
       <a href="/" aria-label="Tabler">
         <svg xmlns="http://www.w3.org/2000/svg" width="110" height="32" viewBox="0 0 232 68" class="navbar-brand-image">
-          <path d="M64.6 16.2C63 9.9 58.1 5 51.8 3.4 40 1.5 28 1.5 16.2 3.4 9.9 5 5 9.9 3.4 16.2 1.5 28 1.5 40 3.4 51.8 5 58.1 9.9 63 16.2 64.6c11.8 1.9 23.8 1.9 35.6 0C58.1 63 63 58.1 64.6 51.8c1.9-11.8 1.9-23.8 0-35.6zM33.3 36.3c-2.8 4.4-6.6 8.2-11.1 11-1.5.9-3.3.9-4.8.1s-2.4-2.3-2.5-4c0-1.7.9-3.3 2.4-4.1 2.3-1.4 4.4-3.2 6.1-5.3-1.8-2.1-3.8-3.8-6.1-5.3-2.3-1.3-3-4.2-1.7-6.4s4.3-2.9 6.5-1.6c4.5 2.8 8.2 6.5 11.1 10.9 1 1.4 1 3.3.1 4.7zM49.2 46H37.8c-2.1 0-3.8-1-3.8-3s1.7-3 3.8-3h11.4c2.1 0 3.8 1 3.8 3s-1.7 3-3.8 3z" fill="#066fd1" style="fill: var(--tblr-primary, #066fd1)"></path>
-          <path d="M105.8 46.1c.4 0 .9.2 1.2.6s.6 1 .6 1.7c0 .9-.5 1.6-1.4 2.2s-2 .9-3.2.9c-2 0-3.7-.4-5-1.3s-2-2.6-2-5.4V31.6h-2.2c-.8 0-1.4-.3-1.9-.8s-.9-1.1-.9-1.9c0-.7.3-1.4.8-1.8s1.2-.7 1.9-.7h2.2v-3.1c0-.8.3-1.5.8-2.1s1.3-.8 2.1-.8 1.5.3 2 .8.8 1.3.8 2.1v3.1h3.4c.8 0 1.4.3 1.9.8s.8 1.2.8 1.9-.3 1.4-.8 1.8-1.2.7-1.9.7h-3.4v13c0 .7.2 1.2.5 1.5s.8.5 1.4.5c.3 0 .6-.1 1.1-.2.5-.2.8-.3 1.2-.3zm28-20.7c.8 0 1.5.3 2.1.8.5.5.8 1.2.8 2.1v20.3c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2-.8-.8-1.2-.8-2.1c-.8.9-1.9 1.7-3.2 2.4-1.3.7-2.8 1-4.3 1-2.2 0-4.2-.6-6-1.7-1.8-1.1-3.2-2.7-4.2-4.7s-1.6-4.3-1.6-6.9c0-2.6.5-4.9 1.5-6.9s2.4-3.6 4.2-4.8c1.8-1.1 3.7-1.7 5.9-1.7 1.5 0 3 .3 4.3.8 1.3.6 2.5 1.3 3.4 2.1 0-.8.3-1.5.8-2.1.5-.5 1.2-.7 2-.7zm-9.7 21.3c2.1 0 3.8-.8 5.1-2.3s2-3.4 2-5.7-.7-4.2-2-5.8c-1.3-1.5-3-2.3-5.1-2.3-2 0-3.7.8-5 2.3-1.3 1.5-2 3.5-2 5.8s.6 4.2 1.9 5.7 3 2.3 5.1 2.3zm32.1-21.3c2.2 0 4.2.6 6 1.7 1.8 1.1 3.2 2.7 4.2 4.7s1.6 4.3 1.6 6.9-.5 4.9-1.5 6.9-2.4 3.6-4.2 4.8c-1.8 1.1-3.7 1.7-5.9 1.7-1.5 0-3-.3-4.3-.9s-2.5-1.4-3.4-2.3v.3c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2.1-.8c-.5-.5-.8-1.2-.8-2.1V18.9c0-.8.3-1.5.8-2.1.5-.6 1.2-.8 2.1-.8s1.5.3 2.1.8c.5.6.8 1.3.8 2.1v10c.8-1 1.8-1.8 3.2-2.5 1.3-.7 2.8-1 4.3-1zm-.7 21.3c2 0 3.7-.8 5-2.3s2-3.5 2-5.8-.6-4.2-1.9-5.7-3-2.3-5.1-2.3-3.8.8-5.1 2.3-2 3.4-2 5.7.7 4.2 2 5.8c1.3 1.6 3 2.3 5.1 2.3zm23.6 1.9c0 .8-.3 1.5-.8 2.1s-1.3.8-2.1.8-1.5-.3-2-.8-.8-1.3-.8-2.1V18.9c0-.8.3-1.5.8-2.1s1.3-.8 2.1-.8 1.5.3 2 .8.8 1.3.8 2.1v29.7zm29.3-10.5c0 .8-.3 1.4-.9 1.9-.6.5-1.2.7-2 .7h-15.8c.4 1.9 1.3 3.4 2.6 4.4 1.4 1.1 2.9 1.6 4.7 1.6 1.3 0 2.3-.1 3.1-.4.7-.2 1.3-.5 1.8-.8.4-.3.7-.5.9-.6.6-.3 1.1-.4 1.6-.4.7 0 1.2.2 1.7.7s.7 1 .7 1.7c0 .9-.4 1.6-1.3 2.4-.9.7-2.1 1.4-3.6 1.9s-3 .8-4.6.8c-2.7 0-5-.6-7-1.7s-3.5-2.7-4.6-4.6-1.6-4.2-1.6-6.6c0-2.8.6-5.2 1.7-7.2s2.7-3.7 4.6-4.8 3.9-1.7 6-1.7 4.1.6 6 1.7 3.4 2.7 4.5 4.7c.9 1.9 1.5 4.1 1.5 6.3zm-12.2-7.5c-3.7 0-5.9 1.7-6.6 5.2h12.6v-.3c-.1-1.3-.8-2.5-2-3.5s-2.5-1.4-4-1.4zm30.3-5.2c1 0 1.8.3 2.4.8.7.5 1 1.2 1 1.9 0 1-.3 1.7-.8 2.2-.5.5-1.1.8-1.8.7-.5 0-1-.1-1.6-.3-.2-.1-.4-.1-.6-.2-.4-.1-.7-.1-1.1-.1-.8 0-1.6.3-2.4.8s-1.4 1.3-1.9 2.3-.7 2.3-.7 3.7v11.4c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2.1-.8c-.5-.6-.8-1.3-.8-2.1V28.8c0-.8.3-1.5.8-2.1.5-.6 1.2-.8 2.1-.8s1.5.3 2.1.8c.5.6.8 1.3.8 2.1v.6c.7-1.3 1.8-2.3 3.2-3 1.3-.7 2.8-1 4.3-1z" fill-rule="evenodd" clip-rule="evenodd" fill="#4a4a4a"></path>
+          <path
+            d="M64.6 16.2C63 9.9 58.1 5 51.8 3.4 40 1.5 28 1.5 16.2 3.4 9.9 5 5 9.9 3.4 16.2 1.5 28 1.5 40 3.4 51.8 5 58.1 9.9 63 16.2 64.6c11.8 1.9 23.8 1.9 35.6 0C58.1 63 63 58.1 64.6 51.8c1.9-11.8 1.9-23.8 0-35.6zM33.3 36.3c-2.8 4.4-6.6 8.2-11.1 11-1.5.9-3.3.9-4.8.1s-2.4-2.3-2.5-4c0-1.7.9-3.3 2.4-4.1 2.3-1.4 4.4-3.2 6.1-5.3-1.8-2.1-3.8-3.8-6.1-5.3-2.3-1.3-3-4.2-1.7-6.4s4.3-2.9 6.5-1.6c4.5 2.8 8.2 6.5 11.1 10.9 1 1.4 1 3.3.1 4.7zM49.2 46H37.8c-2.1 0-3.8-1-3.8-3s1.7-3 3.8-3h11.4c2.1 0 3.8 1 3.8 3s-1.7 3-3.8 3z"
+            fill="#066fd1" style="fill: var(--tblr-primary, #066fd1)"></path>
+          <path
+            d="M105.8 46.1c.4 0 .9.2 1.2.6s.6 1 .6 1.7c0 .9-.5 1.6-1.4 2.2s-2 .9-3.2.9c-2 0-3.7-.4-5-1.3s-2-2.6-2-5.4V31.6h-2.2c-.8 0-1.4-.3-1.9-.8s-.9-1.1-.9-1.9c0-.7.3-1.4.8-1.8s1.2-.7 1.9-.7h2.2v-3.1c0-.8.3-1.5.8-2.1s1.3-.8 2.1-.8 1.5.3 2 .8.8 1.3.8 2.1v3.1h3.4c.8 0 1.4.3 1.9.8s.8 1.2.8 1.9-.3 1.4-.8 1.8-1.2.7-1.9.7h-3.4v13c0 .7.2 1.2.5 1.5s.8.5 1.4.5c.3 0 .6-.1 1.1-.2.5-.2.8-.3 1.2-.3zm28-20.7c.8 0 1.5.3 2.1.8.5.5.8 1.2.8 2.1v20.3c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2-.8-.8-1.2-.8-2.1c-.8.9-1.9 1.7-3.2 2.4-1.3.7-2.8 1-4.3 1-2.2 0-4.2-.6-6-1.7-1.8-1.1-3.2-2.7-4.2-4.7s-1.6-4.3-1.6-6.9c0-2.6.5-4.9 1.5-6.9s2.4-3.6 4.2-4.8c1.8-1.1 3.7-1.7 5.9-1.7 1.5 0 3 .3 4.3.8 1.3.6 2.5 1.3 3.4 2.1 0-.8.3-1.5.8-2.1.5-.5 1.2-.7 2-.7zm-9.7 21.3c2.1 0 3.8-.8 5.1-2.3s2-3.4 2-5.7-.7-4.2-2-5.8c-1.3-1.5-3-2.3-5.1-2.3-2 0-3.7.8-5 2.3-1.3 1.5-2 3.5-2 5.8s.6 4.2 1.9 5.7 3 2.3 5.1 2.3zm32.1-21.3c2.2 0 4.2.6 6 1.7 1.8 1.1 3.2 2.7 4.2 4.7s1.6 4.3 1.6 6.9-.5 4.9-1.5 6.9-2.4 3.6-4.2 4.8c-1.8 1.1-3.7 1.7-5.9 1.7-1.5 0-3-.3-4.3-.9s-2.5-1.4-3.4-2.3v.3c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2.1-.8c-.5-.5-.8-1.2-.8-2.1V18.9c0-.8.3-1.5.8-2.1.5-.6 1.2-.8 2.1-.8s1.5.3 2.1.8c.5.6.8 1.3.8 2.1v10c.8-1 1.8-1.8 3.2-2.5 1.3-.7 2.8-1 4.3-1zm-.7 21.3c2 0 3.7-.8 5-2.3s2-3.5 2-5.8-.6-4.2-1.9-5.7-3-2.3-5.1-2.3-3.8.8-5.1 2.3-2 3.4-2 5.7.7 4.2 2 5.8c1.3 1.6 3 2.3 5.1 2.3zm23.6 1.9c0 .8-.3 1.5-.8 2.1s-1.3.8-2.1.8-1.5-.3-2-.8-.8-1.3-.8-2.1V18.9c0-.8.3-1.5.8-2.1s1.3-.8 2.1-.8 1.5.3 2 .8.8 1.3.8 2.1v29.7zm29.3-10.5c0 .8-.3 1.4-.9 1.9-.6.5-1.2.7-2 .7h-15.8c.4 1.9 1.3 3.4 2.6 4.4 1.4 1.1 2.9 1.6 4.7 1.6 1.3 0 2.3-.1 3.1-.4.7-.2 1.3-.5 1.8-.8.4-.3.7-.5.9-.6.6-.3 1.1-.4 1.6-.4.7 0 1.2.2 1.7.7s.7 1 .7 1.7c0 .9-.4 1.6-1.3 2.4-.9.7-2.1 1.4-3.6 1.9s-3 .8-4.6.8c-2.7 0-5-.6-7-1.7s-3.5-2.7-4.6-4.6-1.6-4.2-1.6-6.6c0-2.8.6-5.2 1.7-7.2s2.7-3.7 4.6-4.8 3.9-1.7 6-1.7 4.1.6 6 1.7 3.4 2.7 4.5 4.7c.9 1.9 1.5 4.1 1.5 6.3zm-12.2-7.5c-3.7 0-5.9 1.7-6.6 5.2h12.6v-.3c-.1-1.3-.8-2.5-2-3.5s-2.5-1.4-4-1.4zm30.3-5.2c1 0 1.8.3 2.4.8.7.5 1 1.2 1 1.9 0 1-.3 1.7-.8 2.2-.5.5-1.1.8-1.8.7-.5 0-1-.1-1.6-.3-.2-.1-.4-.1-.6-.2-.4-.1-.7-.1-1.1-.1-.8 0-1.6.3-2.4.8s-1.4 1.3-1.9 2.3-.7 2.3-.7 3.7v11.4c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2.1-.8c-.5-.6-.8-1.3-.8-2.1V28.8c0-.8.3-1.5.8-2.1.5-.6 1.2-.8 2.1-.8s1.5.3 2.1.8c.5.6.8 1.3.8 2.1v.6c.7-1.3 1.8-2.3 3.2-3 1.3-.7 2.8-1 4.3-1z"
+            fill-rule="evenodd" clip-rule="evenodd" fill="#4a4a4a"></path>
         </svg>
       </a>
     </div>
     <!-- END NAVBAR LOGO -->
-    
+
     <!-- User dropdown for mobile -->
     <div class="navbar-nav flex-row d-lg-none">
       <div class="nav-item dropdown">
@@ -35,7 +39,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="collapse navbar-collapse" id="sidebar-menu">
       <!-- BEGIN DYNAMIC NAVBAR MENU -->
       <ul class="navbar-nav pt-lg-3" id="sidebar-menu-list">
@@ -50,12 +54,12 @@
       <!-- END DYNAMIC NAVBAR MENU -->
     </div>
   </div>
-  
+
   <script>
     // Session Storage Keys
     const ACTIVE_MENU_KEY = 'active_menu_path';
     const ACTIVE_PARENT_KEY = 'active_parent_id';
-    
+
     // Wait for DOM and Bootstrap to be ready
     function initSidebarMenu() {
       const menuList = document.getElementById('sidebar-menu-list');
@@ -63,196 +67,407 @@
         console.error('Menu list element not found');
         return;
       }
-      
+
       fetch('/api/menu/sidebar')
         .then(response => response.json())
         .then(menus => {
           const activeMenuPath = sessionStorage.getItem(ACTIVE_MENU_KEY);
           const activeParentId = sessionStorage.getItem(ACTIVE_PARENT_KEY);
-          
-          menuList.innerHTML = renderMenus(menus, activeMenuPath, activeParentId);
-          
-          // Reinitialize Bootstrap dropdowns only if bootstrap is available
+
+          menuList.innerHTML = renderMenusRecursive(menus, activeMenuPath, activeParentId, 1);
+
+          // Reinitialize Bootstrap dropdowns
           if (typeof bootstrap !== 'undefined') {
-            const dropdowns = menuList.querySelectorAll('[data-bs-toggle="dropdown"]');
-            dropdowns.forEach(el => {
-              try {
-                new bootstrap.Dropdown(el);
-              } catch (e) {
-                console.warn('Could not initialize dropdown:', e);
-              }
-            });
-            
-            // Mở dropdown nếu có menu con active
-            if (activeParentId) {
-              const activeDropdown = menuList.querySelector(`[data-parent-id="${activeParentId}"]`);
-              if (activeDropdown) {
-                try {
-                  const bsDropdown = bootstrap.Dropdown.getOrCreateInstance(activeDropdown);
-                  bsDropdown.show();
-                } catch (e) {
-                  console.warn('Could not open active dropdown:', e);
-                }
-              }
-            }
+            initializeAllDropdowns();
+            openActiveDropdowns(activeParentId);
           }
-          
-          // Gắn sự kiện click cho menu items
+
+          // Gắn sự kiện click và hover
           attachMenuClickEvents();
+          attachNestedDropdownHover();
         })
         .catch(error => {
           console.error('Error loading menu:', error);
           menuList.innerHTML = '<li class="nav-item"><span class="nav-link text-danger">Lỗi tải menu</span></li>';
         });
-      
-      function renderMenus(menus, activeMenuPath, activeParentId) {
+
+      /**
+       * Render menu đệ quy - hỗ trợ vô hạn cấp
+       * @param {Array} menus - Danh sách menu
+       * @param {string} activeMenuPath - Path của menu đang active
+       * @param {number} activeParentId - ID của parent đang active
+       * @param {number} level - Cấp độ hiện tại (1 = root)
+       * @param {number} parentId - ID của menu cha
+       */
+      function renderMenusRecursive(menus, activeMenuPath, activeParentId, level = 1, parentId = null) {
+        if (!menus || !Array.isArray(menus)) return '';
+
         return menus.map(menu => {
-          // Kiểm tra kỹ xem có children hợp lệ không
           const hasChildren = menu.children && Array.isArray(menu.children) && menu.children.length > 0;
-          
+
           if (hasChildren) {
-            return renderParentWithChildren(menu, activeMenuPath, activeParentId);
+            return renderMenuWithChildren(menu, activeMenuPath, activeParentId, level, parentId);
           } else {
-            return renderSimpleMenu(menu, activeMenuPath);
+            return renderLeafMenu(menu, activeMenuPath, level, parentId);
           }
         }).join('');
       }
-      
-      function renderParentWithChildren(menu, activeMenuPath, activeParentId) {
-        const icon = menu.icon ? renderIcon(menu.icon) : '';
+
+      /**
+       * Render menu có children (dropdown)
+       */
+      function renderMenuWithChildren(menu, activeMenuPath, activeParentId, level, parentId) {
         const isActive = activeParentId == menu.id ? 'show' : '';
         const isExpanded = activeParentId == menu.id;
-        
-        // Render children
-        const children = menu.children.map(child => {
-          const childIcon = child.icon ? renderChildIcon(child.icon) : '';
-          const childActive = activeMenuPath === child.path ? 'active' : '';
+
+        // Render children đệ quy
+        const childrenHtml = renderMenusRecursive(
+          menu.children,
+          activeMenuPath,
+          activeParentId,
+          level + 1,
+          menu.id
+        );
+
+        // Level 1: Root menu trong sidebar
+        if (level === 1) {
+          const icon = renderIcon(menu.icon);
           return `
-            <a class="dropdown-item ${childActive}" 
-               href="${child.path || '#'}" 
-               data-menu-id="${child.id}"
-               data-parent-id="${menu.id}"
-               data-menu-path="${child.path || ''}">
-              ${childIcon}${child.title}
-            </a>
-          `;
-        }).join('');
-        
-        // Dùng button thay vì a tag cho dropdown toggle
-        return `
-          <li class="nav-item dropdown">
-            <button class="nav-link dropdown-toggle" 
-                    type="button"
-                    data-bs-toggle="dropdown" 
-                    data-bs-auto-close="false" 
-                    data-parent-id="${menu.id}"
-                    aria-expanded="${isExpanded ? 'true' : 'false'}"
-                    aria-haspopup="true">
-              ${icon}
-              <span class="nav-link-title">${menu.title}</span>
-            </button>
-            <div class="dropdown-menu ${isActive}" aria-labelledby="dropdown-${menu.id}">
-              ${children}
-            </div>
-          </li>
-        `;
-      }
-      
-      function renderSimpleMenu(menu, activeMenuPath) {
-        const icon = menu.icon ? renderIcon(menu.icon) : '';
-        const isActive = activeMenuPath === menu.path ? 'active' : '';
-        
-        // Nếu không có path hoặc path = '#', render như span
-        if (!menu.path || menu.path === '#' || menu.path === '') {
-          return `
-            <li class="nav-item">
-              <span class="nav-link disabled" data-menu-id="${menu.id}">
+            <li class="nav-item dropdown">
+              <button class="nav-link dropdown-toggle" 
+                      type="button"
+                      data-bs-toggle="dropdown" 
+                      data-bs-auto-close="false" 
+                      data-parent-id="${menu.id}"
+                      data-menu-level="${level}"
+                      aria-expanded="${isExpanded ? 'true' : 'false'}">
                 ${icon}
                 <span class="nav-link-title">${menu.title}</span>
-              </span>
+              </button>
+              <div class="dropdown-menu ${isActive}">
+                ${childrenHtml}
+              </div>
             </li>
           `;
         }
-        
-        return `
-          <li class="nav-item">
-            <a class="nav-link ${isActive}" 
-               href="${menu.path}"
-               data-menu-id="${menu.id}"
-               data-menu-path="${menu.path}">
-              ${icon}
-              <span class="nav-link-title">${menu.title}</span>
-            </a>
-          </li>
-        `;
+        // Level >= 2: Nested dropdown
+        else {
+          const icon = renderChildIcon(menu.icon);
+          return `
+            <div class="dropend">
+              <a class="dropdown-item dropdown-toggle" 
+                 href="javascript:void(0)" 
+                 data-bs-toggle="dropdown"
+                 data-bs-auto-close="false"
+                 data-parent-id="${menu.id}"
+                 data-menu-level="${level}"
+                 data-grandparent-id="${parentId}"
+                 role="button">
+                ${icon}${menu.title}
+              </a>
+              <div class="dropdown-menu ${isActive}">
+                ${childrenHtml}
+              </div>
+            </div>
+          `;
+        }
       }
-      
+
+      /**
+       * Render menu không có children (leaf node)
+       */
+      function renderLeafMenu(menu, activeMenuPath, level, parentId) {
+        const isActive = activeMenuPath === menu.path ? 'active' : '';
+        const href = (menu.path && menu.path !== '' && menu.path !== '#')
+          ? menu.path
+          : 'javascript:void(0)';
+
+        // Level 1: Root menu
+        if (level === 1) {
+          const icon = renderIcon(menu.icon);
+          return `
+            <li class="nav-item">
+              <a class="nav-link ${isActive}" 
+                 href="${href}"
+                 data-menu-id="${menu.id}"
+                 data-menu-path="${menu.path || ''}"
+                 data-menu-level="${level}">
+                ${icon}
+                <span class="nav-link-title">${menu.title}</span>
+              </a>
+            </li>
+          `;
+        }
+        // Level >= 2: Dropdown item
+        else {
+          const icon = renderChildIcon(menu.icon);
+          return `
+            <a class="dropdown-item ${isActive}" 
+               href="${href}" 
+               data-menu-id="${menu.id}"
+               data-parent-id="${parentId}"
+               data-menu-path="${menu.path || ''}"
+               data-menu-level="${level}">
+              ${icon}${menu.title}
+            </a>
+          `;
+        }
+      }
+
+      /**
+       * Render icon cho menu level 1
+       */
       function renderIcon(iconName) {
         if (!iconName || iconName === 'null' || iconName === '') return '';
-        
-        // Xử lý icon name - loại bỏ prefix nếu có
-        let cleanIcon = iconName.replace(/^(fa-|fas-|far-|fab-)/i, '');
-        
-        // Nếu icon là "null" string, return empty
+        const cleanIcon = iconName.replace(/^(fa-|fas-|far-|fab-)/i, '');
         if (cleanIcon === 'null') return '';
-        
+
         return `
           <span class="nav-link-icon d-md-none d-lg-inline-block">
             <i class="fas fa-${cleanIcon}"></i>
           </span>
         `;
       }
-      
+
+      /**
+       * Render icon cho dropdown item
+       */
       function renderChildIcon(iconName) {
         if (!iconName || iconName === 'null' || iconName === '') return '';
-        
-        // Xử lý icon name cho dropdown item
-        let cleanIcon = iconName.replace(/^(fa-|fas-|far-|fab-)/i, '');
-        
-        // Nếu icon là "null" string, return empty
+        const cleanIcon = iconName.replace(/^(fa-|fas-|far-|fab-)/i, '');
         if (cleanIcon === 'null') return '';
-        
+
         return `<i class="fas fa-${cleanIcon} me-2"></i>`;
       }
-      
+
+      /**
+       * Khởi tạo tất cả Bootstrap dropdowns
+       */
+      function initializeAllDropdowns() {
+        const dropdowns = document.querySelectorAll('#sidebar-menu-list [data-bs-toggle="dropdown"]');
+        dropdowns.forEach(el => {
+          try {
+            new bootstrap.Dropdown(el);
+          } catch (e) {
+            console.warn('Could not initialize dropdown:', e);
+          }
+        });
+      }
+
+      /**
+       * Mở các dropdown đang active
+       */
+      function openActiveDropdowns(activeParentId) {
+        if (!activeParentId) return;
+
+        // Tìm và mở tất cả dropdown parents của menu active
+        const allDropdowns = document.querySelectorAll('[data-parent-id]');
+        allDropdowns.forEach(dropdown => {
+          const parentId = dropdown.getAttribute('data-parent-id');
+
+          // Nếu là parent của active menu, mở nó
+          if (parentId == activeParentId) {
+            try {
+              const dropdownMenu = dropdown.nextElementSibling;
+              if (dropdownMenu && dropdownMenu.classList.contains('dropdown-menu')) {
+                dropdownMenu.classList.add('show');
+              }
+
+              // Mở cả parent dropdown nếu có
+              const parentDropdown = dropdown.closest('.dropdown-menu');
+              if (parentDropdown) {
+                parentDropdown.classList.add('show');
+              }
+            } catch (e) {
+              console.warn('Could not open active dropdown:', e);
+            }
+          }
+        });
+      }
+
+      /**
+       * Gắn sự kiện click cho các menu items
+       */
       function attachMenuClickEvents() {
         const menuLinks = document.querySelectorAll('#sidebar-menu-list a[data-menu-path]');
-        
+
         menuLinks.forEach(link => {
-          link.addEventListener('click', function(e) {
+          link.addEventListener('click', function (e) {
             const menuPath = this.getAttribute('data-menu-path');
             const menuId = this.getAttribute('data-menu-id');
             const parentId = this.getAttribute('data-parent-id');
-            
+
             if (menuPath && menuPath !== '#' && menuPath !== '') {
               // Lưu vào session storage
               sessionStorage.setItem(ACTIVE_MENU_KEY, menuPath);
-              
+
               if (parentId) {
                 sessionStorage.setItem(ACTIVE_PARENT_KEY, parentId);
               } else {
                 sessionStorage.removeItem(ACTIVE_PARENT_KEY);
               }
-              
+
               // Xóa tất cả active hiện tại
-              document.querySelectorAll('#sidebar-menu-list .nav-link, #sidebar-menu-list .dropdown-item').forEach(el => {
-                el.classList.remove('active');
-              });
-              
+              document.querySelectorAll('#sidebar-menu-list .nav-link, #sidebar-menu-list .dropdown-item')
+                .forEach(el => el.classList.remove('active'));
+
               // Thêm active cho menu được click
               this.classList.add('active');
             }
           });
         });
       }
+
+      /**
+       * Gắn sự kiện hover cho nested dropdowns
+       */
+      function attachNestedDropdownHover() {
+        const dropendItems = document.querySelectorAll('.dropend');
+
+        dropendItems.forEach(dropend => {
+          const menu = dropend.querySelector('.dropdown-menu');
+
+          if (menu) {
+            let timeoutId;
+
+            // Hover vào dropend
+            dropend.addEventListener('mouseenter', function () {
+              clearTimeout(timeoutId);
+              menu.classList.add('show');
+            });
+
+            // Rời khỏi dropend
+            dropend.addEventListener('mouseleave', function () {
+              timeoutId = setTimeout(() => {
+                menu.classList.remove('show');
+              }, 200);
+            });
+
+            // Giữ menu mở khi hover vào menu
+            menu.addEventListener('mouseenter', function () {
+              clearTimeout(timeoutId);
+            });
+          }
+        });
+      }
     }
-    
+
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initSidebarMenu);
     } else {
-      // DOM already loaded
       initSidebarMenu();
     }
   </script>
 </aside>
+<style>
+  /* ===== RECURSIVE NESTED DROPDOWN SUPPORT ===== */
+
+  /* Hỗ trợ nested dropdown đệ quy */
+  .dropend {
+    position: relative;
+  }
+
+  .dropend .dropdown-menu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-top: 0;
+    margin-left: 0.125rem;
+    min-width: 200px;
+  }
+
+  /* Arrow cho nested dropdown */
+  .dropend .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: auto;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid transparent;
+    border-right: 0;
+    border-bottom: 0.3em solid transparent;
+    border-left: 0.3em solid;
+  }
+
+  /* Styling cho dropdown toggle items */
+  .dropdown-item.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 2.5rem;
+    position: relative;
+  }
+
+  /* Hiển thị dropdown khi hover */
+  .dropend:hover>.dropdown-menu {
+    display: block;
+  }
+
+  /* Hiển thị khi có class show */
+  .dropend .dropdown-menu.show {
+    display: block;
+  }
+
+  /* Z-index cho các cấp dropdown khác nhau */
+  .dropdown-menu {
+    z-index: 1050;
+  }
+
+  .dropend .dropdown-menu {
+    z-index: 1051;
+  }
+
+  .dropend .dropend .dropdown-menu {
+    z-index: 1052;
+  }
+
+  .dropend .dropend .dropend .dropdown-menu {
+    z-index: 1053;
+  }
+
+  .dropend .dropend .dropend .dropend .dropdown-menu {
+    z-index: 1054;
+  }
+
+  /* Đảm bảo nested dropdown không bị overflow */
+  .navbar-vertical .dropdown-menu {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  /* Indent cho các level khác nhau (tùy chọn) */
+  .dropdown-item[data-menu-level="2"] {
+    padding-left: 1rem;
+  }
+
+  .dropdown-item[data-menu-level="3"] {
+    padding-left: 1.5rem;
+  }
+
+  .dropdown-item[data-menu-level="4"] {
+    padding-left: 2rem;
+  }
+
+  .dropdown-item[data-menu-level="5"] {
+    padding-left: 2.5rem;
+  }
+
+  /* Smooth transition cho dropdown */
+  .dropdown-menu {
+    transition: opacity 0.15s ease-in-out;
+  }
+
+  .dropdown-menu.show {
+    opacity: 1;
+  }
+
+  /* Highlight cho active menu ở mọi level */
+  .dropdown-item.active {
+    background-color: var(--tblr-primary, #066fd1);
+    color: white;
+  }
+
+  .dropdown-item.active i {
+    color: white;
+  }
+</style>

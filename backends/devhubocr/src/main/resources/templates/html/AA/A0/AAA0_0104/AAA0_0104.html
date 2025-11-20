@@ -29,11 +29,12 @@
                                 <div class="card-header d-flex align-items-center">
                                     <h3 class="card-title">Thông báo</h3>
                                     <div class="ms-auto">
+
                                         <a th:href="@{/AA/A0/AAA0_0104/send/test}" class="btn btn-sm btn-outline-primary">Gửi test</a>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div th:if="${notifications != null and #lists.isNotEmpty(notifications)}">
+                                    <div th:if="${notifications != null and notifications.size() > 0}">
                                         <ul class="list-group">
                                             <li th:each="n : ${notifications}" class="list-group-item d-flex justify-content-between align-items-start">
                                                 <div>
@@ -47,8 +48,11 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div th:unless="${notifications != null and #lists.isNotEmpty(notifications)}">
+                                    <div th:unless="${notifications != null and notifications.size() > 0}">
                                         <div class="alert alert-light">Không có thông báo.</div>
+                                    </div>
+                                    <div th:text="${notifications}">
+                                    
                                     </div>
                                 </div>
                             </div>

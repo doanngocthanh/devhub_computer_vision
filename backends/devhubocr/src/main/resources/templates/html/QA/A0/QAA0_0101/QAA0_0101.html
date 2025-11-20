@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bot Configs - QAA0_0101</title>
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+</head>
+
+<body class="antialiased">
+    <div class="page">
+        <div th:replace="common/sidebar :: sidebar"></div>
+        <div class="page-wrapper">
+            <div th:replace="~{common/header :: header}"></div>
+
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <div class="page-pretitle">QA / Bots</div>
+                            <h2 class="page-title">Bot Configuration (QAA0_0101)</h2>
+                        </div>
+                        <div class="col-auto ms-auto">
+                            <div class="btn-list">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-bot">Add Bot</button>
+                                <button class="btn btn-secondary" onclick="refreshAll()">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-body">
+                <div class="container-xl">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Bots</h3>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter card-table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Bot ID</th>
+                                                    <th>Base URL</th>
+                                                    <th>Enabled</th>
+                                                    <th class="w-1">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="botsTableBody">
+                                                <tr><td colspan="4" class="text-muted">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Quick Send Test</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="sendTestForm" onsubmit="return sendTest(event)">
+                                        <div class="mb-3">
+                                            <label class="form-label">Bot ID</label>
+                                            <select id="sendBotId" class="form-select">
+                                                <option value="">-- select bot --</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Chat ID</label>
+                                            <input id="sendChatId" class="form-control" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">File (upload or URL)</label>
+                                            <div class="input-group">
+                                                <input id="sendFileUrl" class="form-control" placeholder="https://example.com/file.pdf" />
+                                                <input id="sendFileInput" type="file" class="form-control" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Caption</label>
+                                            <input id="sendCaption" class="form-control" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <button class="btn btn-primary">Send Test</button>
+                                        </div>
+                                        <div id="sendResult" style="white-space:pre-wrap;" class="text-muted"></div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h3 class="card-title">Send History (recent)</h3>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter card-table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>When</th>
+                                                    <th>Bot ID</th>
+                                                    <th>Chat ID</th>
+                                                    <th>File</th>
+                                                    <th>Status</th>
+                                                    <th class="w-1">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="historyTableBody">
+                                                <tr><td colspan="6" class="text-muted">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal modal-blur fade" id="modal-add-bot" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Bot Config</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addBotForm" onsubmit="return createBot(event)">
+                                <div class="mb-3">
+                                    <label class="form-label required">Bot ID</label>
+                                    <input id="formBotId" class="form-control" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label required">Token</label>
+                                    <div class="input-group">
+                                        <input id="formToken" class="form-control" required />
+                                        <button class="btn btn-outline-secondary" type="button" onclick="loadSavedBots()">Load saved</button>
+                                    </div>
+                                    <div id="savedBotsList" class="mt-2"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Base URL</label>
+                                    <input id="formBaseUrl" class="form-control" placeholder="https://api.telegram.org" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Callback URL</label>
+                                    <input id="formCallback" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea id="formDesc" class="form-control"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button class="btn btn-primary">Create</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="common/footer :: footer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
+    <script th:inline="javascript">
+        function el(id) { return document.getElementById(id); }
+
+        async function fetchJson(url, opts) {
+            const r = await fetch(url, opts);
+            return r.json();
+        }
+
+        async function refreshBots() {
+            const rows = await fetchJson('/QA/A0/QAA0_0101/bots');
+            const tbody = el('botsTableBody');
+            const select = el('sendBotId');
+            tbody.innerHTML = '';
+            select.innerHTML = '<option value="">-- select bot --</option>';
+            if (!rows || rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-muted">No bots configured</td></tr>';
+                return;
+            }
+            rows.forEach(function(b){
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + (b.bot_id || '') + '</td>' +
+                    '<td>' + (b.base_url || '') + '</td>' +
+                    '<td>' + ((b.enabled==1) ? 'Yes' : 'No') + '</td>' +
+                    '<td><button class="btn btn-sm btn-outline-primary" onclick="prefillSend(\'' + b.bot_id + '\')">Send</button></td>';
+                tbody.appendChild(tr);
+
+                const opt = document.createElement('option'); opt.value = b.bot_id; opt.textContent = b.bot_id; select.appendChild(opt);
+            });
+        }
+
+        async function refreshHistory() {
+            const rows = await fetchJson('/QA/A0/QAA0_0101/history?limit=50');
+            const tbody = el('historyTableBody');
+            tbody.innerHTML = '';
+            if (!rows || rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">No history</td></tr>';
+                return;
+            }
+            rows.forEach(function(r){
+                const tr = document.createElement('tr');
+                const fileLink = r.file_url ? '<a href="' + r.file_url + '" target="_blank">' + (r.file_url || '') + '</a>' : (r.response || '');
+                let actions = '';
+                if (r.file_id) {
+                    actions += '<button class="btn btn-sm btn-outline-success me-1" type="button" onclick="window.location=\'/QA/A0/QAA0_0101/download-file?botId=' + encodeURIComponent(r.bot_id) + '&fileId=' + encodeURIComponent(r.file_id) + '\'">Download</button>';
+                }
+                actions += '<button class="btn btn-sm btn-outline-danger" onclick="deleteHistory(' + (r.id || 0) + ')">Delete</button>';
+                tr.innerHTML = '<td>' + (r.created_at || '') + '</td>' +
+                    '<td>' + (r.bot_id || '') + '</td>' +
+                    '<td><code>' + (r.chat_id || '') + '</code></td>' +
+                    '<td>' + fileLink + '</td>' +
+                    '<td>' + (r.status_code || '') + '</td>' +
+                    '<td>' + actions + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function prefillSend(botId) {
+            el('sendBotId').value = botId;
+            el('sendFileUrl').focus();
+        }
+
+        async function createBot(e) {
+            e.preventDefault();
+            const botId = el('formBotId').value.trim();
+            const token = el('formToken').value.trim();
+            const baseUrl = el('formBaseUrl').value.trim();
+            const callback = el('formCallback').value.trim();
+            const desc = el('formDesc').value.trim();
+
+            const form = new URLSearchParams();
+            form.append('botId', botId);
+            form.append('token', token);
+            if (baseUrl) form.append('baseUrl', baseUrl);
+            if (callback) form.append('callbackUrl', callback);
+            if (desc) form.append('description', desc);
+
+            const resp = await fetch('/QA/A0/QAA0_0101/bot/create', { method: 'POST', body: form });
+            const data = await resp.json();
+            if (resp.ok) {
+                // close modal
+                var modalEl = document.getElementById('modal-add-bot');
+                try { bootstrap.Modal.getInstance(modalEl).hide(); } catch (e) { }
+                refreshAll();
+            } else {
+                alert('Error: ' + JSON.stringify(data));
+            }
+            return false;
+        }
+
+        async function loadSavedBots() {
+            const target = el('savedBotsList');
+            target.innerHTML = 'Loading saved bots...';
+            try {
+                const rows = await fetchJson('/QA/A0/QAA0_0101/saved-bots');
+                if (!rows || rows.length === 0) {
+                    target.innerHTML = '<div class="text-muted">No saved bots found</div>';
+                    return;
+                }
+                const list = document.createElement('div');
+                rows.forEach(function(b){
+                    const item = document.createElement('div');
+                    item.className = 'd-flex align-items-center mb-1';
+                    const label = document.createElement('div');
+                    label.className = 'flex-fill';
+                    label.innerHTML = '<strong>' + (b.name||b.id||'') + '</strong> <div class="text-muted small">chatId: ' + (b.chatId||'') + '</div>';
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-sm btn-outline-primary ms-2';
+                    btn.type = 'button';
+                    btn.textContent = 'Import';
+                    btn.onclick = function(){ importSavedBot(b); };
+                    item.appendChild(label);
+                    item.appendChild(btn);
+                    list.appendChild(item);
+                });
+                target.innerHTML = '';
+                target.appendChild(list);
+            } catch (ex) {
+                target.innerHTML = '<div class="text-danger">Error loading saved bots</div>';
+            }
+        }
+
+        function importSavedBot(b) {
+            // populate form fields from saved bot
+            el('formBotId').value = b.name || b.id || '';
+            if (b.token) el('formToken').value = b.token;
+            if (b.chatId) el('formCallback').value = '';
+            if (b.description) el('formDesc').value = b.description;
+            // close saved list
+            const target = el('savedBotsList'); if (target) target.innerHTML = '';
+        }
+
+        async function sendTest(e) {
+            e.preventDefault();
+            const botId = el('sendBotId').value;
+            const chatId = el('sendChatId').value.trim();
+            const fileUrl = el('sendFileUrl').value.trim();
+            const fileInput = el('sendFileInput');
+            const caption = el('sendCaption').value.trim();
+
+            if (!botId) { alert('Select a bot'); return false; }
+            el('sendResult').textContent = 'Sending...';
+
+            // If a file is chosen, send as multipart upload
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                const fd = new FormData();
+                fd.append('botId', botId);
+                fd.append('chatId', chatId);
+                if (caption) fd.append('caption', caption);
+                fd.append('file', fileInput.files[0]);
+                const resp = await fetch('/QA/A0/QAA0_0101/send-file/upload', { method: 'POST', body: fd });
+                const data = await resp.json();
+                el('sendResult').textContent = JSON.stringify(data, null, 2);
+            } else {
+                const form = new URLSearchParams();
+                form.append('botId', botId);
+                form.append('chatId', chatId);
+                form.append('fileUrl', fileUrl);
+                if (caption) form.append('caption', caption);
+                const resp = await fetch('/QA/A0/QAA0_0101/send-file', { method: 'POST', body: form });
+                const data = await resp.json();
+                el('sendResult').textContent = JSON.stringify(data, null, 2);
+            }
+            await refreshHistory();
+            return false;
+        }
+
+        async function deleteHistory(id) {
+            if (!confirm('Delete history entry #' + id + '?')) return;
+            const form = new URLSearchParams(); form.append('id', id);
+            const resp = await fetch('/QA/A0/QAA0_0101/history/delete', { method: 'POST', body: form });
+            if (resp.ok) {
+                await refreshHistory();
+            } else {
+                alert('Failed to delete history');
+            }
+        }
+
+        async function refreshAll() {
+            await refreshBots();
+            await refreshHistory();
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            refreshAll();
+        });
+    </script>
+</body>
+
+</html>

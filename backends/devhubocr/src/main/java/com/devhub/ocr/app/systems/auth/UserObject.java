@@ -16,6 +16,8 @@ public class UserObject {
 	private Instant createdAt;
 	// optional fields
 	private String displayName;
+	// optional: last login IP for audit/notifications
+	private String lastLoginIp;
 
 	public UserObject() {
 	}
@@ -82,6 +84,14 @@ public class UserObject {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+
+	public String getLastLoginIp() {
+		return lastLoginIp;
+	}
+
+	public void setLastLoginIp(String lastLoginIp) {
+		this.lastLoginIp = lastLoginIp;
 	}
 
 	@Override

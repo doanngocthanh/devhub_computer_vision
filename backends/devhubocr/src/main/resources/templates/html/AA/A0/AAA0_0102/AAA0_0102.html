@@ -1,171 +1,1284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AAA0_0102 - Menu Management</title>
+  <title>Menu Management - Tabler</title>
   <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+  <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
   <link rel="stylesheet" th:href="@{/css/style.css}" />
   <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+  <script th:src="@{/js/main.js}"></script>
+  <style>
+    /* Tree View Styles */
+    .menu-tree {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .menu-tree-item {
+      margin: 0.5rem 0;
+    }
+
+    .menu-tree-content {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background: #ffffff;
+      border: 1px solid var(--tblr-border-color);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: default;
+    }
+
+    .menu-tree-content:hover {
+      background: #f8fafc;
+      border-color: var(--tblr-primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .menu-tree-toggle {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .menu-tree-toggle:hover {
+      background: #e9ecef;
+      color: #495057;
+    }
+
+    .menu-tree-toggle i {
+      transition: transform 0.2s ease;
+    }
+
+    .menu-tree-toggle.collapsed i {
+      transform: rotate(-90deg);
+    }
+
+    .menu-tree-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e7f1ff;
+      color: var(--tblr-primary);
+      border-radius: 6px;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+
+    .menu-tree-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .menu-tree-title {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: #1e293b;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .menu-tree-meta {
+      font-size: 0.75rem;
+      color: #64748b;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .menu-tree-meta i {
+      opacity: 0.7;
+    }
+
+    .menu-tree-actions {
+      display: flex;
+      gap: 0.25rem;
+      margin-left: auto;
+      padding-left: 0.75rem;
+    }
+
+    .menu-tree-children {
+      list-style: none;
+      padding-left: 2.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+      position: relative;
+    }
+
+    .menu-tree-children::before {
+      content: '';
+      position: absolute;
+      left: 1rem;
+      top: 0;
+      bottom: 0.5rem;
+      width: 1px;
+      background: #e2e8f0;
+    }
+
+    .menu-tree-children.collapsed {
+      display: none;
+    }
+
+    .badge-role {
+      font-size: 0.6875rem;
+      padding: 0.25rem 0.5rem;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #64748b;
+    }
+
+    .empty-state-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.3;
+      color: var(--tblr-primary);
+    }
+
+    .icon-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.5rem;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .icon-picker-item {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--tblr-border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: #fff;
+      font-size: 1.1rem;
+      color: #64748b;
+    }
+
+    .icon-picker-item:hover {
+      background: #e7f1ff;
+      border-color: var(--tblr-primary);
+      color: var(--tblr-primary);
+      transform: scale(1.05);
+    }
+
+    .icon-picker-item.selected {
+      background: var(--tblr-primary);
+      color: white;
+      border-color: var(--tblr-primary);
+    }
+
+    .page-pretitle {
+      color: #64748b;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      color: white;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+  </style>
 </head>
 
-<body class="antialiased">
-
+<body>
   <div class="page">
     <div th:replace="~{common/sidebar :: sidebar}"></div>
     <div class="page-wrapper">
       <div th:replace="~{common/header :: header}"></div>
 
       <div class="page-body">
-        <div class="container-xl py-5">
-          <div class="row g-4 mb-4">
-            <div class="col-12">
-              <h1 th:text="${pageTitle}">Menu Management</h1>
+        <div class="container-xl">
+          <!-- Page Header -->
+          <div class="page-header d-print-none">
+            <div class="container-xl">
+              <div class="row g-2 align-items-center">
+                <div class="col">
+                  <div class="page-pretitle">SYSTEM</div>
+                  <h2 class="page-title">Menu Management</h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                  <div class="btn-list">
+                    <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                      data-bs-target="#modal-menu">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 5l0 14" />
+                        <path d="M5 12l14 0" />
+                      </svg>
+                      Add Menu
+                    </button>
 
-              <div class="row">
-                <div class="col-12 col-lg-6">
-                  <div class="card mb-3">
-                    <div class="card-header">
-                      <h3 class="card-title" th:text="${editMenu == null ? 'Create menu' : 'Edit menu'}"></h3>
-                    </div>
+                    <button type="button" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
+                      data-bs-target="#modal-menu" aria-label="Create new menu">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 5l0 14" />
+                        <path d="M5 12l14 0" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="page-body">
+            <div class="container-xl">
+              <div class="row row-deck row-cards">
+                <!-- Statistics Cards -->
+                <div class="col-sm-6 col-lg-3">
+                  <div class="card card-sm">
                     <div class="card-body">
-                      <form th:if="${editMenu == null}" method="post" th:action="@{/AA/A0/AAA0_0102/menu/create}">
-                        <div class="mb-3">
-                          <label class="form-label">Title</label>
-                          <input name="title" class="form-control" placeholder="Menu title" required />
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="bg-primary text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path
+                                d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                              <path d="M9 9l6 0" />
+                              <path d="M9 15l6 0" />
+                            </svg>
+                          </span>
                         </div>
-
-                        <div class="mb-3">
-                          <label class="form-label">Icon</label>
-                          <input name="icon" class="form-control" placeholder="e.g. home" list="icon-list" />
-                          <datalist id="icon-list">
-                            <option value="home"></option>
-                            <option value="package"></option>
-                            <option value="layout-2"></option>
-                            <option value="settings"></option>
-                          </datalist>
+                        <div class="col">
+                          <div class="font-weight-medium" id="stat-total-menus">-</div>
+                          <div class="text-muted">Total Menus</div>
                         </div>
-
-                        <div class="mb-3">
-                          <label class="form-label">Path (URI)</label>
-                          <input name="path" class="form-control" placeholder="/AA/A0/AAA0_0102/..." />
-                        </div>
-
-                        <div class="mb-3">
-                          <label class="form-label">Parent</label>
-                          <select name="parentId" class="form-select">
-                            <option value="" th:text="'-- Top level --'"></option>
-                            <option th:each="pm : ${allMenus}" th:value="${pm.id}" th:text="${pm.title}"></option>
-                          </select>
-                        </div>
-
-                        <div class="mb-3">
-                          <label class="form-label">Roles</label>
-                          <select name="roles" class="form-select" multiple size="5">
-                            <option th:each="r : ${allRoles}" th:value="${r.role}" th:text="${r.role}"></option>
-                          </select>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                          <button type="submit" class="btn btn-primary">Create</button>
-                          <a class="btn btn-link" th:href="@{/AA/A0/AAA0_0102/}">Reset</a>
-                        </div>
-                      </form>
-
-                      <form th:if="${editMenu != null}" method="post" th:action="@{/AA/A0/AAA0_0102/menu/update}">
-                        <input type="hidden" name="id" th:value="${editMenu.id}" />
-                        <div class="mb-3">
-                          <label class="form-label">Title</label>
-                          <input name="title" class="form-control" th:value="${editMenu.title}" required />
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label">Icon</label>
-                          <input name="icon" class="form-control" th:value="${editMenu.icon}" list="icon-list" />
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label">Path (URI)</label>
-                          <input name="path" class="form-control" th:value="${editMenu.path}" />
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label">Parent</label>
-                          <select name="parentId" class="form-select">
-                            <option value="" th:text="'-- Top level --'"></option>
-                            <option th:each="pm : ${allMenus}" th:value="${pm.id}" th:text="${pm.title}"
-                              th:selected="${editMenu.parent_id != null and pm.id == editMenu.parent_id}"></option>
-                          </select>
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label">Roles</label>
-                          <select name="roles" class="form-select" multiple size="5">
-                            <option th:each="r : ${allRoles}" th:value="${r.role}" th:text="${r.role}"
-                              th:selected="${editRoles != null and #arrays.contains(editRoles, r.role)}"></option>
-                          </select>
-                        </div>
-                        <div class="d-flex gap-2">
-                          <button type="submit" class="btn btn-success">Save changes</button>
-                          <a class="btn btn-link" th:href="@{/AA/A0/AAA0_0102/}">Cancel</a>
-                        </div>
-                      </form>
-
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <div class="col-12 col-lg-6">
-                  <div class="card mb-3">
-                    <div class="card-header">
-                      <h3 class="card-title">Existing menus</h3>
-                    </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="card card-sm">
                     <div class="card-body">
-                      <div class="table-responsive">
-                        <table class="table table-vcenter">
-                          <thead>
-                            <tr>
-                              <th>ID</th>
-                              <th>Title</th>
-                              <th>Icon</th>
-                              <th>Path</th>
-                              <th>Parent</th>
-                              <th>Roles</th>
-                              <th></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr th:each="m : ${allMenus}">
-                              <td th:text="${m.id}"></td>
-                              <td th:text="${m.title}"></td>
-                              <td th:text="${m.icon}"></td>
-                              <td><code th:text="${m.path}"></code></td>
-                              <td th:text="${m.parent_id}"></td>
-                              <td th:text="${m.roles}"></td>
-                              <td>
-                                <a class="btn btn-sm btn-outline-secondary"
-                                  th:href="@{/AA/A0/AAA0_0102/(editId=${m.id})}">Edit</a>
-                                <form th:action="@{/AA/A0/AAA0_0102/menu/delete}" method="post" style="display:inline"
-                                  onsubmit="return confirm('Are you sure you want to delete this menu item?');">
-                                  <input type="hidden" name="id" th:value="${m.id}" />
-                                  <button type="submit" class="btn btn-sm btn-danger ms-1">Delete</button>
-                                </form>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="bg-green text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M5 12l5 5l10 -10" />
+                            </svg>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <div class="font-weight-medium" id="stat-root-menus">-</div>
+                          <div class="text-muted">Root Menus</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="bg-twitter text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path
+                                d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
+                            </svg>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <div class="font-weight-medium" id="stat-nested-menus">-</div>
+                          <div class="text-muted">Nested Menus</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <span class="bg-facebook text-white avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                              <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                              <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+                            </svg>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <div class="font-weight-medium" id="stat-public-menus">-</div>
+                          <div class="text-muted">Public Access</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
+                <!-- Menu Tree -->
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M9 6l11 0" />
+                          <path d="M9 12l11 0" />
+                          <path d="M9 18l11 0" />
+                          <path d="M5 6l0 .01" />
+                          <path d="M5 12l0 .01" />
+                          <path d="M5 18l0 .01" />
+                        </svg>
+                        Menu Structure
+                      </h3>
+                      <div class="card-actions">
+                        <a href="#" class="btn btn-sm" onclick="expandAll(); return false;">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-maximize"
+                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M16 4l4 0l0 4" />
+                            <path d="M14 10l6 -6" />
+                            <path d="M8 20l-4 0l0 -4" />
+                            <path d="M4 20l6 -6" />
+                            <path d="M16 20l4 0l0 -4" />
+                            <path d="M14 14l6 6" />
+                            <path d="M8 4l-4 0l0 4" />
+                            <path d="M4 4l6 6" />
+                          </svg>
+                          Expand All
+                        </a>
+                        <a href="#" class="btn btn-sm" onclick="collapseAll(); return false;">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-minimize"
+                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M5 9l4 0l0 -4" />
+                            <path d="M3 3l6 6" />
+                            <path d="M5 15l4 0l0 4" />
+                            <path d="M3 21l6 -6" />
+                            <path d="M19 9l-4 0l0 -4" />
+                            <path d="M15 9l6 -6" />
+                            <path d="M19 15l-4 0l0 4" />
+                            <path d="M15 15l6 6" />
+                          </svg>
+                          Collapse All
+                        </a>
+                        <a href="#" class="btn btn-sm" onclick="loadMenuTree(); return false;">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                          </svg>
+                          Refresh
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div id="menu-tree-container">
+                        <div class="text-center py-5">
+                          <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                          <p class="text-muted mt-2 mb-0">Loading menu structure...</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-
             </div>
           </div>
         </div>
       </div>
 
       <div th:replace="~{common/footer :: footer}"></div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Create/Edit Menu -->
+  <div class="modal modal-blur fade" id="modal-menu" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-menu-title">Create Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="menu-form" onsubmit="handleMenuSubmit(event); return false;">
+          <input type="hidden" id="menu-id" name="id">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  <label class="form-label required">Title</label>
+                  <input type="text" class="form-control" id="menu-title" name="title" placeholder="Menu title"
+                    required>
+                  <small class="form-hint">Displayed name of the menu item</small>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Icon</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="menu-icon" name="icon"
+                      placeholder="e.g. home, box, user">
+                    <button class="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                        <path d="M21 21l-6 -6" />
+                      </svg>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end" style="width: 400px;">
+                      <div class="icon-picker-grid" id="icon-picker-grid"></div>
+                    </div>
+                  </div>
+                  <small class="form-hint">FontAwesome icon name</small>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Path (URL)</label>
+                  <input type="text" class="form-control" id="menu-path" name="path" placeholder="/path/to/page">
+                  <small class="form-hint">Leave empty for dropdown menus</small>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Parent Menu</label>
+                  <select class="form-select" id="menu-parent" name="parentId">
+                    <option value="">-- Root Level --</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Display Order</label>
+                  <input type="number" class="form-control" id="menu-order" name="display_order" value="0">
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  <label class="form-label">Roles (Access Control)</label>
+                  <select class="form-select" id="menu-roles" name="roles" multiple size="4"></select>
+                  <small class="form-hint">Hold Ctrl/Cmd to select multiple. Leave empty for public access.</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example modal (data-bs API) -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci animi beatae delectus deleniti
+                    dolorem eveniet facere fuga iste nemo nesciunt nihil odio perspiciatis, quia quis reprehenderit sit
+                    tempora totam unde.
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+            <button type="submit" class="btn btn-primary ms-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                <path d="M14 4l0 4l-6 0l0 -4" />
+              </svg>
+              Save Menu
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
   <script th:src="@{/js/tabler.min.js}"></script>
+  <script>
+    // Quiet console: only show the bootstrap-wait message to reduce console noise on this page.
+    (function () {
+      try {
+        var _origWarn = console.warn.bind(console);
+        var _origError = console.error.bind(console);
+        var _allowed = 'Bootstrap is not loaded yet, waiting...';
+        var _quiet = true; // set to false to restore normal logging
+        if (_quiet) {
+          console.log = function () { };
+          console.debug = function () { };
+          console.info = function () { };
+          console.warn = function (msg) {
+            try {
+              if (typeof msg === 'string' && msg.indexOf(_allowed) !== -1) {
+                _origWarn(msg);
+              }
+            } catch (e) { }
+          };
+          // keep errors visible
+          console.error = _origError;
+        }
+      } catch (e) { }
+    })();
+
+    // Common FontAwesome Icons
+    const COMMON_ICONS = [
+      'home', 'dashboard', 'box', 'package', 'settings', 'cog', 'user', 'users',
+      'file', 'folder', 'chart-bar', 'chart-line', 'calendar', 'clock', 'bell',
+      'envelope', 'phone', 'map', 'globe', 'lock', 'unlock', 'key', 'shield',
+      'heart', 'star', 'bookmark', 'tag', 'tags', 'search', 'filter', 'eye',
+      'camera', 'image', 'video', 'music', 'play', 'pause', 'stop', 'download',
+      'upload', 'share', 'link', 'paperclip', 'trash', 'edit', 'plus', 'minus',
+      'check', 'times', 'arrow-right', 'arrow-left', 'chevron-down', 'chevron-up',
+      'layout-2', 'layers'
+    ];
+
+    let allMenusData = [];
+    let allRolesData = [];
+    let draggedElement = null;
+    let draggedMenuId = null;
+
+    // Initialize on page load - wait for both Bootstrap and /js/main.js to be ready
+    document.addEventListener('DOMContentLoaded', function () {
+      var maxWait = 3000; // ms
+      var interval = 100; // ms
+      var waited = 0;
+      var warned = false;
+
+      function readyToInit() {
+        var bootReady = (typeof bootstrap !== 'undefined');
+        var mainReady = !!window.DEVHUB_MAIN_LOADED;
+        return bootReady && mainReady;
+      }
+
+      var intervalId = setInterval(function () {
+        try {
+          if (readyToInit()) {
+            clearInterval(intervalId);
+            initializeApp();
+            return;
+          }
+
+          waited += interval;
+          if (waited >= maxWait) {
+            // warn only once, then proceed and stop polling
+            if (!warned) {
+              warned = true;
+              if (typeof bootstrap === 'undefined') console.warn('Bootstrap is not loaded yet, waiting...');
+            }
+            clearInterval(intervalId);
+            initializeApp();
+          }
+        } catch (e) {
+          clearInterval(intervalId);
+          console.error('init poll error', e);
+          initializeApp();
+        }
+      }, interval);
+    });
+
+    function initializeApp() {
+      //loadRoles();
+      loadMenuTree();
+      initIconPicker();
+      //setupModalResetOnClose();
+      setupDragAndDrop();
+    }
+
+    // Open create modal with Bootstrap check
+    function openCreateModal() {
+      // if (typeof bootstrap === 'undefined') {
+      //   showSimpleAlert('Error', 'Bootstrap is not loaded. Please refresh the page.');
+      //   return false;
+      // }
+      document.getElementById('modal-menu-title').textContent = 'Create Menu';
+      document.getElementById('menu-form').reset();
+      document.getElementById('menu-id').value = '';
+      populateParentSelect(allMenusData);
+
+      const modalElement = document.getElementById('modal-menu');
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+      return false;
+    }
+
+    // Load roles from API or fallback to server-rendered data
+    async function loadRoles() {
+      try {
+        // Try API first
+        const response = await fetch('/api/roles');
+        if (response.ok) {
+          allRolesData = await response.json();
+          populateRolesSelect();
+          return;
+        }
+      } catch (error) {
+        console.warn('API not available, checking server data:', error);
+      }
+
+      // Fallback: Check if roles are in page data (from Thymeleaf)
+      const rolesFromServer = window.allRolesData || [];
+      if (rolesFromServer.length > 0) {
+        allRolesData = rolesFromServer;
+        populateRolesSelect();
+      } else {
+        // Last resort fallback
+        allRolesData = [
+          { role: 'ADMIN' },
+          { role: 'USER' },
+          { role: 'IT' },
+          { role: 'MANAGER' }
+        ];
+        populateRolesSelect();
+      }
+    }
+
+    function populateRolesSelect() {
+      const select = document.getElementById('menu-roles');
+      if (!select) return;
+
+      select.innerHTML = allRolesData.map(r =>
+        `<option value="${r.role}">${r.role}</option>`
+      ).join('');
+    }
+
+    // Load menu tree from API or server data
+    async function loadMenuTree() {
+      const container = document.getElementById('menu-tree-container');
+      if (!container) return;
+
+      // Show loading
+      container.innerHTML = `
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-2 mb-0">Loading menu structure...</p>
+    </div>
+  `;
+
+      try {
+        // Try API first
+        const response = await fetch('/api/menu/sidebar');
+        if (!response.ok) throw new Error('API failed');
+
+        const menus = await response.json();
+        renderMenuData(menus);
+      } catch (error) {
+        console.warn('API not available, checking server data:', error);
+
+        // Fallback to server-rendered data
+        const menusFromServer = window.allMenusData || [];
+        if (menusFromServer.length > 0) {
+          renderMenuData(menusFromServer);
+        } else {
+          showEmptyState(container);
+        }
+      }
+    }
+
+    function renderMenuData(menus) {
+      const container = document.getElementById('menu-tree-container');
+      allMenusData = flattenMenus(menus);
+
+      if (menus.length === 0) {
+        showEmptyState(container);
+      } else {
+        container.innerHTML = `<ul class="menu-tree">${renderMenuTree(menus)}</ul>`;
+        updateStatistics(allMenusData, menus);
+        populateParentSelect(allMenusData);
+        setupDragAndDrop(); // Re-setup drag after render
+      }
+    }
+
+    function showEmptyState(container) {
+      container.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <i class="fas fa-sitemap"></i>
+      </div>
+      <h3 class="mb-2">No menus yet</h3>
+      <p class="text-muted">Create your first menu to get started</p>
+      <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#modal-menu" onclick="openCreateModal()">
+        <i class="fas fa-plus me-2"></i>Add Menu
+      </button>
+    </div>
+  `;
+    }
+
+    // Flatten menu tree to array
+    function flattenMenus(menus, result = []) {
+      menus.forEach(menu => {
+        result.push(menu);
+        if (menu.children && menu.children.length > 0) {
+          flattenMenus(menu.children, result);
+        }
+      });
+      return result;
+    }
+
+    // Render menu tree recursively
+    function renderMenuTree(menus, level = 0) {
+      return menus.map(menu => {
+        const hasChildren = menu.children && menu.children.length > 0;
+        const iconHtml = menu.icon ?
+          `<i class="fas fa-${menu.icon.replace(/^fa-/, '')}"></i>` :
+          `<i class="fas fa-circle"></i>`;
+
+        const rolesHtml = menu.roles ?
+          menu.roles.split(',').map(r =>
+            `<span class="badge badge-role bg-primary-lt">${r.trim()}</span>`
+          ).join(' ') :
+          '<span class="badge badge-role bg-secondary-lt">Public</span>';
+
+        return `
+      <li class="menu-tree-item" data-menu-id="${menu.id}">
+        <div class="menu-tree-content" draggable="true" data-menu-id="${menu.id}">
+          ${hasChildren ? `
+            <button class="menu-tree-toggle" onclick="toggleMenuItem(this); return false;">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          ` : '<span style="width: 1.5rem; display: inline-block;"></span>'}
+          
+          <div class="menu-tree-icon">
+            ${iconHtml}
+          </div>
+          
+          <div class="menu-tree-info">
+            <div class="menu-tree-title">${escapeHtml(menu.title)}</div>
+            <div class="menu-tree-meta">
+              ${menu.path ? `<span><i class="fas fa-link me-1"></i>${escapeHtml(menu.path)}</span>` : '<span class="text-muted">No path</span>'}
+              <span>${rolesHtml}</span>
+            </div>
+          </div>
+          
+          <div class="menu-tree-actions">
+            <button class="btn btn-sm btn-icon btn-ghost-primary" data-bs-toggle="modal" data-bs-target="#modal-menu" onclick="editMenu(${menu.id}); return false;" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-icon btn-ghost-danger" onclick="deleteMenu(${menu.id}, '${escapeHtml(menu.title).replace(/'/g, "\\'")}'); return false;" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        ${hasChildren ? `
+          <ul class="menu-tree-children">
+            ${renderMenuTree(menu.children, level + 1)}
+          </ul>
+        ` : ''}
+      </li>
+    `;
+      }).join('');
+    }
+
+    // Setup Drag and Drop
+    function setupDragAndDrop() {
+      const draggableElements = document.querySelectorAll('.menu-tree-content[draggable="true"]');
+
+      draggableElements.forEach(element => {
+        element.addEventListener('dragstart', handleDragStart);
+        element.addEventListener('dragover', handleDragOver);
+        element.addEventListener('drop', handleDrop);
+        element.addEventListener('dragend', handleDragEnd);
+        element.addEventListener('dragenter', handleDragEnter);
+        element.addEventListener('dragleave', handleDragLeave);
+      });
+    }
+
+    function handleDragStart(e) {
+      draggedElement = e.currentTarget;
+      draggedMenuId = e.currentTarget.getAttribute('data-menu-id');
+      e.currentTarget.style.opacity = '0.4';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
+    }
+
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function handleDragEnter(e) {
+      if (e.currentTarget !== draggedElement) {
+        e.currentTarget.classList.add('drag-over');
+      }
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      e.preventDefault();
+
+      const targetElement = e.currentTarget;
+      const targetMenuId = targetElement.getAttribute('data-menu-id');
+
+      targetElement.classList.remove('drag-over');
+
+      if (draggedElement !== targetElement && draggedMenuId !== targetMenuId) {
+        // Update parent relationship
+        updateMenuParent(draggedMenuId, targetMenuId);
+      }
+
+      return false;
+    }
+
+    function handleDragEnd(e) {
+      e.currentTarget.style.opacity = '1';
+
+      document.querySelectorAll('.menu-tree-content').forEach(el => {
+        el.classList.remove('drag-over');
+      });
+    }
+
+    // Update menu parent via API
+    async function updateMenuParent(menuId, newParentId) {
+      try {
+        const menu = allMenusData.find(m => m.id == menuId);
+        if (!menu) {
+          showToast('error', 'Menu not found');
+          return;
+        }
+
+        // Prevent circular reference
+        if (isCircularReference(menuId, newParentId)) {
+          showToast('error', 'Cannot move menu: circular reference detected');
+          return;
+        }
+
+        const params = new URLSearchParams();
+        params.append('id', menuId);
+        params.append('title', menu.title);
+        params.append('icon', menu.icon || '');
+        params.append('path', menu.path || '');
+        params.append('parentId', newParentId);
+        params.append('display_order', menu.display_order || 0);
+
+        // Add roles
+        if (menu.roles) {
+          menu.roles.split(',').forEach(role => {
+            params.append('roles', role.trim());
+          });
+        }
+
+        const response = await fetch('/AA/A0/AAA0_0102/menu/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: params.toString()
+        });
+
+        if (response.ok) {
+          await loadMenuTree();
+          showToast('success', 'Menu moved successfully');
+        } else {
+          showToast('error', 'Failed to move menu');
+        }
+      } catch (error) {
+        console.error('Error moving menu:', error);
+        showToast('error', 'Error moving menu: ' + error.message);
+      }
+    }
+
+    // Check for circular reference
+    function isCircularReference(menuId, newParentId) {
+      let currentId = newParentId;
+      const visited = new Set();
+
+      while (currentId) {
+        if (currentId == menuId) return true;
+        if (visited.has(currentId)) return true; // Prevent infinite loop
+        visited.add(currentId);
+
+        const menu = allMenusData.find(m => m.id == currentId);
+        currentId = menu ? menu.parent_id : null;
+      }
+
+      return false;
+    }
+
+    // Toggle menu item
+    function toggleMenuItem(button) {
+      button.classList.toggle('collapsed');
+      const children = button.closest('.menu-tree-content').nextElementSibling;
+      if (children && children.classList.contains('menu-tree-children')) {
+        children.classList.toggle('collapsed');
+      }
+      return false;
+    }
+
+    // Expand/Collapse all
+    function expandAll() {
+      document.querySelectorAll('.menu-tree-toggle').forEach(btn => {
+        btn.classList.remove('collapsed');
+      });
+      document.querySelectorAll('.menu-tree-children').forEach(ul => {
+        ul.classList.remove('collapsed');
+      });
+      return false;
+    }
+
+    function collapseAll() {
+      document.querySelectorAll('.menu-tree-toggle').forEach(btn => {
+        btn.classList.add('collapsed');
+      });
+      document.querySelectorAll('.menu-tree-children').forEach(ul => {
+        ul.classList.add('collapsed');
+      });
+      return false;
+    }
+
+    // Update statistics
+    function updateStatistics(allMenus, rootMenus) {
+      const totalMenus = allMenus.length;
+      const rootCount = rootMenus.length;
+      const nestedCount = totalMenus - rootCount;
+      const publicCount = allMenus.filter(m => !m.roles || m.roles.trim() === '').length;
+
+      const statTotal = document.getElementById('stat-total-menus');
+      const statRoot = document.getElementById('stat-root-menus');
+      const statNested = document.getElementById('stat-nested-menus');
+      const statPublic = document.getElementById('stat-public-menus');
+
+      if (statTotal) statTotal.textContent = totalMenus;
+      if (statRoot) statRoot.textContent = rootCount;
+      if (statNested) statNested.textContent = nestedCount;
+      if (statPublic) statPublic.textContent = publicCount;
+    }
+
+    // Populate parent select
+    function populateParentSelect(menus) {
+      const select = document.getElementById('menu-parent');
+      if (!select) return;
+
+      const currentId = document.getElementById('menu-id').value;
+
+      select.innerHTML = '<option value="">-- Root Level --</option>';
+
+      // Build hierarchical options
+      const buildOptions = (menuList, prefix = '') => {
+        menuList.forEach(menu => {
+          // Don't show current menu as parent option (prevent circular reference)
+          if (menu.id != currentId) {
+            const option = document.createElement('option');
+            option.value = menu.id;
+            option.textContent = prefix + menu.title;
+            select.appendChild(option);
+
+            // Add children with indent
+            if (menu.children && menu.children.length > 0) {
+              buildOptions(menu.children, prefix + '  ├─ ');
+            }
+          }
+        });
+      };
+
+      // Get root menus for hierarchical display
+      const rootMenus = menus.filter(m => !m.parent_id);
+      buildOptions(rootMenus);
+    }
+
+    // Edit menu with Bootstrap check
+    function editMenu(id) {
+      // if (typeof bootstrap === 'undefined') {
+      //   showSimpleAlert('Error', 'Bootstrap is not loaded. Please refresh the page.');
+      //   return false;
+      // }
+
+      const menu = allMenusData.find(m => m.id === id);
+      if (!menu) {
+        showToast('error', 'Menu not found');
+        return false;
+      }
+
+      document.getElementById('modal-menu-title').textContent = 'Edit Menu';
+      document.getElementById('menu-id').value = menu.id;
+      document.getElementById('menu-title').value = menu.title || '';
+      document.getElementById('menu-icon').value = menu.icon || '';
+      document.getElementById('menu-path').value = menu.path || '';
+      document.getElementById('menu-order').value = menu.display_order || 0;
+
+      // Populate parent select before setting value
+      populateParentSelect(allMenusData);
+      document.getElementById('menu-parent').value = menu.parent_id || '';
+
+      // Set selected roles
+      const rolesSelect = document.getElementById('menu-roles');
+      const roles = menu.roles ? menu.roles.split(',').map(r => r.trim()) : [];
+      Array.from(rolesSelect.options).forEach(option => {
+        option.selected = roles.includes(option.value);
+      });
+
+      // Show modal
+      // delegate showing the modal to Bootstrap's data-bs trigger
+      return false;
+    }
+
+    // Delete menu
+    async function deleteMenu(id, title) {
+      if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis will also delete all child menus.`)) {
+        return false;
+      }
+
+      try {
+        const response = await fetch('/AA/A0/AAA0_0102/menu/delete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `id=${id}`
+        });
+
+        if (response.ok) {
+          await loadMenuTree();
+          showToast('success', 'Menu deleted successfully');
+        } else {
+          const errorText = await response.text();
+          showToast('error', 'Failed to delete menu: ' + errorText);
+        }
+      } catch (error) {
+        console.error('Error deleting menu:', error);
+        showToast('error', 'Error deleting menu: ' + error.message);
+      }
+
+      return false;
+    }
+
+    // Handle form submit
+    async function handleMenuSubmit(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const id = formData.get('id');
+      const isEdit = id && id !== '';
+
+      // Get selected roles
+      const rolesSelect = document.getElementById('menu-roles');
+      const selectedRoles = Array.from(rolesSelect.selectedOptions).map(opt => opt.value);
+
+      // Build URL-encoded body
+      const params = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        if (key !== 'roles') {
+          params.append(key, value);
+        }
+      }
+
+      // Add roles
+      selectedRoles.forEach(role => params.append('roles', role));
+
+      const url = isEdit ? '/AA/A0/AAA0_0102/menu/update' : '/AA/A0/AAA0_0102/menu/create';
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: params.toString()
+        });
+
+        if (response.ok) {
+          // Close modal
+          if (typeof bootstrap !== 'undefined') {
+            const modalElement = document.getElementById('modal-menu');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) modal.hide();
+          }
+
+          form.reset();
+          document.getElementById('menu-id').value = '';
+          document.getElementById('modal-menu-title').textContent = 'Create Menu';
+
+          await loadMenuTree();
+          showToast('success', isEdit ? 'Menu updated successfully' : 'Menu created successfully');
+        } else {
+          const errorText = await response.text();
+          showToast('error', 'Failed to save menu: ' + errorText);
+        }
+      } catch (error) {
+        console.error('Error saving menu:', error);
+        showToast('error', 'Error saving menu: ' + error.message);
+      }
+
+      return false;
+    }
+
+    // Initialize icon picker
+    function initIconPicker() {
+      const grid = document.getElementById('icon-picker-grid');
+      if (!grid) return;
+
+      grid.innerHTML = COMMON_ICONS.map(icon => `
+    <div class="icon-picker-item" onclick="selectIcon('${icon}')" title="${icon}">
+      <i class="fas fa-${icon}"></i>
+    </div>
+  `).join('');
+    }
+
+    function selectIcon(icon) {
+      const iconInput = document.getElementById('menu-icon');
+      if (iconInput) {
+        iconInput.value = icon;
+      }
+
+      document.querySelectorAll('.icon-picker-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('selected');
+      }
+    }
+
+    // Show simple alert (fallback when Bootstrap is not available)
+    function showSimpleAlert(title, message) {
+      alert(title + '\n\n' + message);
+    }
+
+    // Show toast notification
+    function showToast(type, message) {
+      console.log(`[${type.toUpperCase()}] ${message}`);
+
+      // Create a simple toast element
+      const toast = document.createElement('div');
+      toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible position-fixed top-0 end-0 m-3`;
+      toast.style.zIndex = '9999';
+      toast.style.minWidth = '300px';
+      toast.innerHTML = `
+    <div class="d-flex">
+      <div>
+        <h4 class="alert-title">${type === 'success' ? '✓ Success' : '✗ Error'}!</h4>
+        <div class="text-muted">${escapeHtml(message)}</div>
+      </div>
+    </div>
+    <a class="btn-close" onclick="this.parentElement.remove()" aria-label="close"></a>
+  `;
+
+      document.body.appendChild(toast);
+
+      // Auto remove after 4 seconds
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      }, 4000);
+    }
+
+    // Setup modal reset on close
+    function setupModalResetOnClose() {
+      const modal = document.getElementById('modal-menu');
+      if (modal) {
+        modal.addEventListener('hidden.bs.modal', function () {
+          const form = document.getElementById('menu-form');
+          if (form) form.reset();
+
+          const menuId = document.getElementById('menu-id');
+          if (menuId) menuId.value = '';
+
+          const title = document.getElementById('modal-menu-title');
+          if (title) title.textContent = 'Create Menu';
+        });
+      }
+    }
+
+    // Utility: Escape HTML
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.toString().replace(/[&<>"']/g, m => map[m]);
+    }
+  </script>
+
+  <script th:src="@{/js/tabler.min.js}"></script>
   <script th:src="@{/js/main.js}"></script>
 </body>
-
-</html>  
+</html>
