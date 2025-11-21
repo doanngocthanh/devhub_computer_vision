@@ -35,6 +35,7 @@ EXPOSE 8080
 # default runtime environment
 ENV JAVA_OPTS="-Xms128m -Xmx512m"
 # By default database and migrations will be read from /data inside container
-ENV devhub.db.path=/data/database.db
-ENV devhub.db.migrations=/data/sql
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.datasource.url=jdbc:sqlite:${devhub.db.path} -jar /app/app.jar"]
+# Use POSIX-friendly env var names (no dots) to avoid /bin/sh "Bad substitution"
+ENV DEVHUB_DB_PATH=/data/database.db
+ENV DEVHUB_DB_MIGRATIONS=/data/sql
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.datasource.url=jdbc:sqlite:${DEVHUB_DB_PATH} -jar /app/app.jar"]

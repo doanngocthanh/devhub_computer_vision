@@ -43,7 +43,8 @@ EXPOSE 8080
 
 # default runtime environment
 ENV JAVA_OPTS="-Xms128m -Xmx512m"
-ENV devhub.db.path=/data/database.db
-ENV devhub.db.migrations=/data/sql
+# Use POSIX-friendly env var names (no dots) to avoid /bin/sh "Bad substitution"
+ENV DEVHUB_DB_PATH=/data/database.db
+ENV DEVHUB_DB_MIGRATIONS=/data/sql
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.datasource.url=jdbc:sqlite:${devhub.db.path} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.datasource.url=jdbc:sqlite:${DEVHUB_DB_PATH} -jar /app/app.jar"]

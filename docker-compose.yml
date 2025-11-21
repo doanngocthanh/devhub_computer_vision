@@ -15,6 +15,9 @@ services:
     environment:
       # Pass Spring properties to container (relaxed binding via SPRING_APPLICATION_JSON)
       - SPRING_APPLICATION_JSON={"devhub.db.path":"/data/database.db","devhub.db.migrations":"/data/sql"}
+      # Also provide POSIX-friendly env vars used by the container ENTRYPOINT
+      - DEVHUB_DB_PATH=/data/database.db
+      - DEVHUB_DB_MIGRATIONS=/data/sql
     restart: unless-stopped
     networks:
       - devhub-net
