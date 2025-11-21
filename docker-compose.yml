@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  devhubocr:
+    build:
+      context: ./backends/devhubocr
+      dockerfile: Dockerfile
+    image: devhubocr:local
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./db_local:/data:rw
+      - ./backends/devhubocr/uploads:/app/uploads:rw
+      - ./uploads:/workspace-uploads:rw
+    environment:
+      # Pass Spring properties to container (relaxed binding via SPRING_APPLICATION_JSON)
+      - SPRING_APPLICATION_JSON={"devhub.db.path":"/data/database.db","devhub.db.migrations":"/data/sql"}
+    restart: unless-stopped
+    networks:
+      - devhub-net
+
+networks:
+  devhub-net:
+    driver: bridge

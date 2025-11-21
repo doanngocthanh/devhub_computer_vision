@@ -1,0 +1,17 @@
+/target
+**/target
+.git
+.gitignore
+.env
+node_modules
+*.log
+*.tmp
+*.swp
+/.vscode
+/.idea
+/.DS_Store
+database.db
+db_local/database.db
+backends/devhubocr/target
+backends/devhubocr/.mvn
+backends/devhubocr/.idea
