@@ -1,4 +1,4 @@
-FROM maven:3.10.1-jdk-21-slim as builder
+FROM eclipse-temurin:21-jdk-noble as builder
 WORKDIR /build
 # copy only what's needed for a maven build (leverage cache)
 COPY mvnw .

@@ -2,7 +2,7 @@
 ## It copies the backend sources into the image and runs the same multi-stage build
 ## as `backends/devhubocr/Dockerfile` so you can `docker build -t devhubocr:root .` from repo root.
 
-FROM maven:3.10.1-jdk-21-slim as builder
+FROM eclipse-temurin:21-jdk-noble as builder
 WORKDIR /build
 
 # copy only what's needed for a maven build (leverage cache)
