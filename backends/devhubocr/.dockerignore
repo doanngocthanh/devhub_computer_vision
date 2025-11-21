@@ -1,0 +1,10 @@
+/target
+/.mvn/wrapper/maven-wrapper.jar
+**/.git
+**/.idea
+**/node_modules
+**/logs
+**/*.iml
+**/*.md
+Dockerfile
+compose.yaml

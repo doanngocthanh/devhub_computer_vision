@@ -1,8 +1,18 @@
 version: '3.8'
 
 services:
-  devhub_placeholder:
-    image: busybox:latest
-    command: ["sh", "-c", "sleep 3650d"]
+  devhubocr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devhubocr:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - devhub.db.path=/data/database.db
+      - devhub.db.migrations=/data/sql
+      - SPRING_PROFILES_ACTIVE=default
+    volumes:
+      - ../../db_local:/data:rw
+      - ./uploads:/app/uploads
     restart: unless-stopped
-services:
