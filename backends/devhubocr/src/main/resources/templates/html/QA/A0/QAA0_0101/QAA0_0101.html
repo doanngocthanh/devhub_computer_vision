@@ -25,7 +25,8 @@
                         </div>
                         <div class="col-auto ms-auto">
                             <div class="btn-list">
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-bot">Add Bot</button>
+                                <button class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#modal-add-bot">Add Bot</button>
                                 <button class="btn btn-secondary" onclick="refreshAll()">Refresh</button>
                             </div>
                         </div>
@@ -53,7 +54,9 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="botsTableBody">
-                                                <tr><td colspan="4" class="text-muted">Loading...</td></tr>
+                                                <tr>
+                                                    <td colspan="4" class="text-muted">Loading...</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -81,7 +84,8 @@
                                         <div class="mb-3">
                                             <label class="form-label">File (upload or URL)</label>
                                             <div class="input-group">
-                                                <input id="sendFileUrl" class="form-control" placeholder="https://example.com/file.pdf" />
+                                                <input id="sendFileUrl" class="form-control"
+                                                    placeholder="https://example.com/file.pdf" />
                                                 <input id="sendFileInput" type="file" class="form-control" />
                                             </div>
                                         </div>
@@ -115,7 +119,9 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="historyTableBody">
-                                                <tr><td colspan="6" class="text-muted">Loading...</td></tr>
+                                                <tr>
+                                                    <td colspan="6" class="text-muted">Loading...</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -143,13 +149,15 @@
                                     <label class="form-label required">Token</label>
                                     <div class="input-group">
                                         <input id="formToken" class="form-control" required />
-                                        <button class="btn btn-outline-secondary" type="button" onclick="loadSavedBots()">Load saved</button>
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="loadSavedBots()">Load saved</button>
                                     </div>
                                     <div id="savedBotsList" class="mt-2"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Base URL</label>
-                                    <input id="formBaseUrl" class="form-control" placeholder="https://api.telegram.org" />
+                                    <input id="formBaseUrl" class="form-control"
+                                        placeholder="https://api.telegram.org" />
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Callback URL</label>
@@ -173,10 +181,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-
     <script th:inline="javascript">
         function el(id) { return document.getElementById(id); }
 
@@ -195,11 +199,11 @@
                 tbody.innerHTML = '<tr><td colspan="4" class="text-muted">No bots configured</td></tr>';
                 return;
             }
-            rows.forEach(function(b){
+            rows.forEach(function (b) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = '<td>' + (b.bot_id || '') + '</td>' +
                     '<td>' + (b.base_url || '') + '</td>' +
-                    '<td>' + ((b.enabled==1) ? 'Yes' : 'No') + '</td>' +
+                    '<td>' + ((b.enabled == 1) ? 'Yes' : 'No') + '</td>' +
                     '<td><button class="btn btn-sm btn-outline-primary" onclick="prefillSend(\'' + b.bot_id + '\')">Send</button></td>';
                 tbody.appendChild(tr);
 
@@ -215,7 +219,7 @@
                 tbody.innerHTML = '<tr><td colspan="6" class="text-muted">No history</td></tr>';
                 return;
             }
-            rows.forEach(function(r){
+            rows.forEach(function (r) {
                 const tr = document.createElement('tr');
                 const fileLink = r.file_url ? '<a href="' + r.file_url + '" target="_blank">' + (r.file_url || '') + '</a>' : (r.response || '');
                 let actions = '';
@@ -276,17 +280,17 @@
                     return;
                 }
                 const list = document.createElement('div');
-                rows.forEach(function(b){
+                rows.forEach(function (b) {
                     const item = document.createElement('div');
                     item.className = 'd-flex align-items-center mb-1';
                     const label = document.createElement('div');
                     label.className = 'flex-fill';
-                    label.innerHTML = '<strong>' + (b.name||b.id||'') + '</strong> <div class="text-muted small">chatId: ' + (b.chatId||'') + '</div>';
+                    label.innerHTML = '<strong>' + (b.name || b.id || '') + '</strong> <div class="text-muted small">chatId: ' + (b.chatId || '') + '</div>';
                     const btn = document.createElement('button');
                     btn.className = 'btn btn-sm btn-outline-primary ms-2';
                     btn.type = 'button';
                     btn.textContent = 'Import';
-                    btn.onclick = function(){ importSavedBot(b); };
+                    btn.onclick = function () { importSavedBot(b); };
                     item.appendChild(label);
                     item.appendChild(btn);
                     list.appendChild(item);
@@ -359,10 +363,12 @@
             await refreshHistory();
         }
 
-        document.addEventListener('DOMContentLoaded', function(){
+        document.addEventListener('DOMContentLoaded', function () {
             refreshAll();
         });
     </script>
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
 </body>
 
 </html>

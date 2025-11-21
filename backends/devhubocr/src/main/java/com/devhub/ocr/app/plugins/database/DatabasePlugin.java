@@ -134,7 +134,31 @@ public class DatabasePlugin {
                         if (s.isEmpty()) continue;
                         // skip single-line SQL comments
                         if (s.startsWith("--")) continue;
-                        st.execute(s);
+                        // skip explicit transaction control statements which may appear in
+                        // migration files (BEGIN, COMMIT, ROLLBACK). Executing them inside
+                        // an active JDBC transaction can leave the driver in an inconsistent
+                        // state ("no transaction is active") when we attempt to commit.
+                        String up = s.toUpperCase(Locale.ROOT);
+                        if (up.startsWith("BEGIN") || up.startsWith("COMMIT") || up.startsWith("ROLLBACK")) {
+                            // just ignore transaction control lines
+                            continue;
+                        }
+
+                        try {
+                            st.execute(s);
+                        } catch (java.sql.SQLException ex) {
+                            // Some migration statements may try to create objects that already
+                            // exist (for example adding a column that was added manually). In
+                            // that case, it's often safe to ignore the "already exists" error
+                            // and continue. Detect common SQLite messages and skip.
+                            String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase(Locale.ROOT);
+                            if (msg.contains("duplicate column") || msg.contains("already exists") || msg.contains("duplicate table") || msg.contains("file exists")) {
+                                System.err.println("Migration warning, skipping statement due to existing object: " + ex.getMessage());
+                                continue;
+                            }
+                            // rethrow other SQL errors
+                            throw ex;
+                        }
                     }
                 } finally {
                     try { st.close(); } catch (java.sql.SQLException ignore) {}

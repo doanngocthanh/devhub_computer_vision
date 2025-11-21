@@ -9,7 +9,6 @@
   <link rel="stylesheet" th:href="@{/css/tabler-icons.min.css}" />
   <link rel="stylesheet" th:href="@{/css/style.css}" />
   <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
-  <script th:src="@{/js/main.js}"></script>
   <style>
     /* Tree View Styles */
     .menu-tree {
@@ -566,8 +565,6 @@
       </div>
     </div>
   </div>
-
-  <script th:src="@{/js/tabler.min.js}"></script>
   <script>
     // Quiet console: only show the bootstrap-wait message to reduce console noise on this page.
     (function () {
@@ -637,6 +634,9 @@
             if (!warned) {
               warned = true;
               if (typeof bootstrap === 'undefined') console.warn('Bootstrap is not loaded yet, waiting...');
+              if (!window.DEVHUB_MAIN_LOADED) {
+                console.warn('DEVHUB_MAIN_LOADED flag not set, proceeding anyway after timeout.');
+              }
             }
             clearInterval(intervalId);
             initializeApp();

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pipeline Builder - WLA0_0100</title>
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .pipeline-builder { display:flex; gap:1rem; }
+        #step-list { width:260px; border:1px solid #eee; padding:0.5rem; }
+        #canvas { flex:1; min-height:400px; border:1px dashed #ddd; padding:0.5rem; }
+        .step-item { padding:0.5rem; border:1px solid #ddd; margin-bottom:0.5rem; cursor:grab; }
+    </style>
+</head>
+<body>
+<div th:replace="~{common/header :: header}"></div>
+<div class="container-xl py-4">
+    <h2>Pipeline Builder</h2>
+    <div class="pipeline-builder">
+        <div id="step-list">
+            <h5>Available Steps</h5>
+            <div class="step-item" data-bean="LoadImageStep">LoadImageStep</div>
+            <div class="step-item" data-bean="OnnxDetectStep">OnnxDetectStep</div>
+            <div class="step-item" data-bean="AutoLabelStep">AutoLabelStep</div>
+        </div>
+        <div id="canvas">
+            <div id="canvas-inner">Drop steps here</div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-primary" id="exportBtn">Export JSON</button>
+        <button class="btn btn-success" id="saveBtn">Save</button>
+        <button class="btn btn-secondary" id="runBtn">Run</button>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Upload file and run pipeline</label>
+        <input type="file" id="pipelineFileInput" class="form-control" />
+        <button class="btn btn-primary mt-2" id="runWithFileBtn">Run with file</button>
+    </div>
+
+    <pre id="resultArea" class="mt-3"></pre>
+</div>
+</div>
+
+<!-- Step parameter editor modal (simple, no bootstrap dependency) -->
+<div id="stepParamModal" style="display:none; position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); background:#fff; border:1px solid #ddd; padding:1rem; z-index:9999; width:600px; max-width:95%; box-shadow:0 10px 30px rgba(0,0,0,0.15)">
+    <h5 id="modalTitle">Step</h5>
+    <div id="modalBody"></div>
+    <div class="mt-2 text-end">
+        <button class="btn btn-secondary" id="modalClose">Close</button>
+        <button class="btn btn-primary" id="modalRun">Run step</button>
+    </div>
+    <pre id="modalResult" style="max-height:240px; overflow:auto; background:#f8f9fa; padding:0.5rem; margin-top:0.75rem;"></pre>
+</div>
+
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/pipeline-builder.js}"></script>
+</body>
+</html>
