@@ -13,5 +13,4 @@ node_modules
 database.db
 db_local/database.db
 backends/devhubocr/target
-backends/devhubocr/.mvn
 backends/devhubocr/.idea
