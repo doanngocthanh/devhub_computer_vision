@@ -45,6 +45,7 @@ public class QAA0_1000 {
     public static final String FILE_HEADER = "#QAA0_1000 v1";
 
     public QAA0_1000() {
+    
     }
 
     public UUID addBot(BotConfig bot) {

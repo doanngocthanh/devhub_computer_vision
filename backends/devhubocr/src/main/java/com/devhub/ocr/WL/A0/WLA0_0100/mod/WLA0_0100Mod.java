@@ -1,8 +1,8 @@
-package com.devhub.ocr.QA.A0.WLA0_0100.mod;
+package com.devhub.ocr.WL.A0.WLA0_0100.mod;
 
-import com.devhub.ocr.QA.A0.WLA0_0100.dto.PipelineDTO;
-import com.devhub.ocr.QA.A0.WLA0_0100.dto.PipelineStepDTO;
 import com.devhub.ocr.pipeline.PipelineRegistry;
+import com.devhub.ocr.WL.A0.WLA0_0100.dto.PipelineDTO;
+import com.devhub.ocr.WL.A0.WLA0_0100.dto.PipelineStepDTO;
 import com.devhub.ocr.app.plugins.database.DatabasePlugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.devhub.ocr.pipeline.PipelineResult;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import com.devhub.ocr.pipeline.PipelineParam;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -117,6 +118,83 @@ public class WLA0_0100Mod {
             r.put("error", ex.getMessage());
             return r;
         }
+    }
+
+    /**
+     * Validate a pipeline statically by propagating declared output types and checking
+     * that inputs referencing previous outputs or initial context have compatible types.
+     * Returns a map { ok: boolean, issues: List<String> }
+     */
+    public Map<String,Object> validatePipeline(PipelineDTO dto, Map<String,String> initialTypes) {
+        List<String> issues = new ArrayList<>();
+        Map<String,String> ctxTypes = new HashMap<>();
+        if (initialTypes != null) ctxTypes.putAll(initialTypes);
+
+        if (dto.getSteps() != null) {
+            for (PipelineStepDTO s : dto.getSteps()) {
+                PipelineStep step = registry.getStep(s.getBean());
+                if (step == null) {
+                    issues.add("Step not found: " + s.getBean());
+                    continue;
+                }
+
+                // validate inputs
+                Map<String,Object> inputTemplate = s.getInput();
+                if (inputTemplate != null) {
+                    for (Map.Entry<String,Object> e : inputTemplate.entrySet()) {
+                        Object v = e.getValue();
+                        if (v instanceof String) {
+                            String sv = (String) v;
+                            if (sv.startsWith("${") && sv.endsWith("}")) {
+                                String key = sv.substring(2, sv.length()-1);
+                                String base = key.split("\\.")[0];
+                                String expectedType = null;
+                                // find matching param definition for this input key
+                                PipelineParam paramDef = step.getInputParams().stream().filter(p->p.getName().equals(e.getKey())).findFirst().orElse(null);
+                                if (paramDef != null) expectedType = paramDef.getType();
+
+                                if (!ctxTypes.containsKey(base)) {
+                                    issues.add("Missing context key '"+base+"' required by step '"+s.getBean()+"' input '"+e.getKey()+"'");
+                                } else if (expectedType != null) {
+                                    String actual = ctxTypes.get(base);
+                                    if (!typesCompatible(expectedType, actual)) {
+                                        issues.add("Type mismatch for step '"+s.getBean()+"' input '"+e.getKey()+"': expected '"+expectedType+"' but found '"+actual+"' from '"+base+"'");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // register declared outputs under outputKey so later steps can reference them
+                if (s.getOutputKey() != null) {
+                    for (PipelineParam outp : step.getOutputParams()) {
+                        String composed = s.getOutputKey() + "." + outp.getName();
+                        ctxTypes.put(composed, outp.getType() != null ? outp.getType() : "object");
+                    }
+                    // also register the outputKey as an object
+                    ctxTypes.put(s.getOutputKey(), "object");
+                }
+            }
+        }
+
+        Map<String,Object> out = new HashMap<>();
+        out.put("ok", issues.isEmpty());
+        out.put("issues", issues);
+        out.put("contextTypes", ctxTypes);
+        return out;
+    }
+
+    private boolean typesCompatible(String expected, String actual) {
+        if (expected == null || actual == null) return false;
+        expected = expected.toLowerCase();
+        actual = actual.toLowerCase();
+        if (expected.equals(actual)) return true;
+        // allow file <-> image compatibility
+        if ((expected.equals("image") && actual.equals("file")) || (expected.equals("file") && actual.equals("image"))) return true;
+        // allow json <-> object
+        if ((expected.equals("json") && actual.equals("object")) || (expected.equals("object") && actual.equals("json"))) return true;
+        return false;
     }
 
     private void publishFiles(Map<String,Object> context) {

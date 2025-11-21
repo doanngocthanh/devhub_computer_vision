@@ -21,6 +21,12 @@ RUN apt-get update \
 		&& (apt-get install -y --no-install-recommends python3.10 python3.10-venv python3-pip || apt-get install -y --no-install-recommends python3 python3-pip) \
 		&& rm -rf /var/lib/apt/lists/* || true
 
+# Install Tesseract OCR runtime and native libs so Tess4J can load libtesseract
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       tesseract-ocr libtesseract-dev libleptonica-dev pkg-config \
+    && rm -rf /var/lib/apt/lists/* || true
+
 # Make sure `python` and `pip` commands are available
 RUN if command -v python3.10 >/dev/null 2>&1; then \
 			ln -sf /usr/bin/python3.10 /usr/bin/python || ln -sf /usr/bin/python3 /usr/bin/python; \
@@ -30,6 +36,10 @@ RUN if command -v python3.10 >/dev/null 2>&1; then \
 		&& if command -v pip3 >/dev/null 2>&1; then ln -sf /usr/bin/pip3 /usr/bin/pip || true; fi
 
 COPY --from=builder /build/target/*.jar app.jar
+# Copy any bundled traineddata files packaged under src/main/resources/static/models
+# into the system tessdata folder so tess4j can find language models without extra setup.
+RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata
+COPY --from=builder /build/target/classes/static/models/*.traineddata /usr/share/tesseract-ocr/4.00/tessdata/ || true
 # expose port
 EXPOSE 8080
 # default runtime environment
@@ -38,4 +48,8 @@ ENV JAVA_OPTS="-Xms128m -Xmx512m"
 # Use POSIX-friendly env var names (no dots) to avoid /bin/sh "Bad substitution"
 ENV DEVHUB_DB_PATH=/data/database.db
 ENV DEVHUB_DB_MIGRATIONS=/data/sql
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/
+
+# Default tess4j datapath; can be overridden via SPRING or JVM system properties
+ENV TESS4J_DATA_PATH=/usr/share/tesseract-ocr/4.00/tessdata
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.datasource.url=jdbc:sqlite:${DEVHUB_DB_PATH} -jar /app/app.jar"]

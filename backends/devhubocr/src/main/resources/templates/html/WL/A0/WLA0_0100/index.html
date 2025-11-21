@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pipeline Builder - DevHub OCR</title>
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+    <style>
+        pre {
+            color: black;
+        }
+
+        .pipeline-builder {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        #step-list {
+            width: 280px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        #step-list h5 {
+            margin-bottom: 1rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        #canvas {
+            flex: 1;
+            min-height: 500px;
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        #canvas.drag-over {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        #canvas-inner {
+            min-height: 100%;
+        }
+
+        #canvas-inner:empty::before {
+            content: 'Kéo thả các bước xử lý vào đây';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .step-item {
+            padding: 0.75rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: grab;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .step-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .step-item:active {
+            cursor: grabbing;
+        }
+
+        .step-item-header {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-item-params {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .canvas-step {
+            position: relative;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .canvas-step:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .canvas-step.valid {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .canvas-step.invalid {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .canvas-step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .canvas-step-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+
+        .canvas-step-id {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .canvas-step-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .canvas-step-delete:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .canvas-step-validation {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .validation-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .validation-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .validation-icon {
+            font-weight: bold;
+        }
+
+        .step-connector {
+            text-align: center;
+            color: #3b82f6;
+            font-size: 1.2rem;
+            margin: -0.5rem 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .action-buttons .btn {
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+        }
+
+        pre#resultArea {
+            color: #10b981;
+            background-color: #1e293b;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+            max-height: 400px;
+            overflow: auto;
+        }
+
+        #stepParamModal {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            z-index: 9999;
+            width: 600px;
+            max-width: 95%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        #stepParamModal h5 {
+            margin-bottom: 1rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+
+        .modal-backdrop.show {
+            display: block;
+        }
+
+        #modalResult {
+            max-height: 300px;
+            overflow: auto;
+            background: #f8f9fa;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #475569;
+        }
+
+        .form-control {
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .pipeline-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .step-input-section {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-input-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .step-input-number {
+            background: #3b82f6;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .step-input-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+
+        .no-inputs-notice {
+            color: #64748b;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="page">
+        <div th:replace="~{common/sidebar :: sidebar}"></div>
+
+        <div class="page-wrapper">
+            <div th:replace="~{common/header :: header}"></div>
+
+            <div class="page-body">
+                <div class="container-xl">
+                    <h2 style="margin-bottom: 1.5rem;">🔧 Pipeline Builder</h2>
+
+                    <div class="pipeline-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Tổng bước:</span>
+                            <span class="stat-value" id="totalSteps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Hợp lệ:</span>
+                            <span class="stat-value" style="color: #10b981;" id="validSteps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Lỗi:</span>
+                            <span class="stat-value" style="color: #ef4444;" id="invalidSteps">0</span>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-builder">
+                        <div id="step-list">
+                            <h5>📦 Bước xử lý khả dụng</h5>
+                            <div id="step-list-inner"></div>
+                        </div>
+                        <div id="canvas">
+                            <div id="canvas-inner"></div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="exportBtn">
+                            <i class="fas fa-download"></i> Export JSON
+                        </button>
+                        <button class="btn btn-success" id="saveBtn">
+                            <i class="fas fa-save"></i> Lưu Pipeline
+                        </button>
+                        <button class="btn btn-secondary" id="runBtn">
+                            <i class="fas fa-play"></i> Chạy Pipeline
+                        </button>
+                        <button class="btn btn-warning" id="validateBtn">Validate</button>
+                        <button class="btn btn-danger" id="clearBtn">
+                            <i class="fas fa-trash"></i> Xóa tất cả
+                        </button>
+                    </div>
+
+                    <pre id="resultArea"></pre>
+                    <div id="validationArea" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Step parameter editor modal -->
+    <div id="stepParamModal">
+        <h5 id="modalTitle">Thông số bước xử lý</h5>
+        <div id="modalBody"></div>
+        <div class="mt-3 text-end">
+            <button class="btn btn-secondary" id="modalClose">Đóng</button>
+            <button class="btn btn-primary" id="modalRun">
+                <i class="fas fa-play"></i> Chạy bước này
+            </button>
+        </div>
+        <pre id="modalResult"></pre>
+    </div>
+
+    <!-- Pipeline input modal -->
+    <div id="pipelineInputModal"
+        style="display:none; position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); background:#fff; border-radius:8px; padding:1.5rem; z-index:9999; width:700px; max-width:95%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <h5>🎯 Cấu hình Pipeline</h5>
+        <p class="text-muted mb-3">Nhập tham số cho các bước xử lý:</p>
+        <div id="pipelineInputBody"></div>
+        <div class="mt-3 text-end">
+            <button class="btn btn-secondary" id="pipelineInputClose">Hủy</button>
+            <button class="btn btn-success" id="pipelineInputRun">
+                <i class="fas fa-play-circle"></i> Chạy Pipeline
+            </button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        (function () {
+            function $(sel, root) { return (root || document).querySelector(sel); }
+            function $all(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+
+            var canvas = $('#canvas');
+            var canvasInner = $('#canvas-inner');
+            var resultArea = $('#resultArea');
+            var stepMeta = {};
+
+            // Fetch available steps
+            fetch('/A0/WLA0_0100/steps').then(r => r.json()).then(list => {
+                var inner = $('#step-list-inner');
+                if (!inner) return;
+
+                list.forEach(function (s) {
+                    var it = document.createElement('div');
+                    it.className = 'step-item';
+                    it.setAttribute('data-bean', s.bean);
+                    it.setAttribute('data-name', s.name || s.bean);
+
+                    var header = document.createElement('div');
+                    header.className = 'step-item-header';
+                    header.textContent = s.name || s.bean;
+
+                    var params = document.createElement('div');
+                    params.className = 'step-item-params';
+                    var inputStr = (s.inputs || []).map(i => i.name + ':' + (i.type || 'string')).join(', ');
+                    params.textContent = inputStr || 'Không có tham số';
+
+                    it.appendChild(header);
+                    it.appendChild(params);
+                    inner.appendChild(it);
+
+                    stepMeta[s.bean] = s;
+
+                    it.draggable = true;
+                    it.addEventListener('dragstart', function (e) {
+                        e.dataTransfer.setData('text/plain', s.bean);
+                        it.style.opacity = '0.5';
+                    });
+                    it.addEventListener('dragend', function (e) {
+                        it.style.opacity = '1';
+                    });
+                });
+            }).catch(err => {
+                console.warn('Failed to load steps', err);
+            });
+
+            // Canvas drag & drop
+            canvas.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                canvas.classList.add('drag-over');
+            });
+
+            canvas.addEventListener('dragleave', function (e) {
+                if (e.target === canvas) {
+                    canvas.classList.remove('drag-over');
+                }
+            });
+
+            canvas.addEventListener('drop', function (e) {
+                e.preventDefault();
+                canvas.classList.remove('drag-over');
+
+                var bean = e.dataTransfer.getData('text/plain');
+                var meta = stepMeta[bean] || null;
+
+                addStepToCanvas(bean, meta);
+                updateStats();
+            });
+
+            function addStepToCanvas(bean, meta) {
+                var prev = canvasInner.lastElementChild;
+                if (prev && prev.classList.contains('canvas-step')) {
+                    var connector = document.createElement('div');
+                    connector.className = 'step-connector';
+                    connector.innerHTML = '↓';
+                    canvasInner.appendChild(connector);
+                }
+
+                var el = document.createElement('div');
+                el.className = 'canvas-step';
+                el.setAttribute('data-bean', bean);
+                el.dataset.inputs = JSON.stringify((meta && meta.inputs) || []);
+                el.dataset.outputs = JSON.stringify((meta && meta.outputs) || []);
+
+                var id = 'step' + Date.now();
+                el.dataset.stepId = id;
+
+                var header = document.createElement('div');
+                header.className = 'canvas-step-header';
+
+                var titleDiv = document.createElement('div');
+                var title = document.createElement('div');
+                title.className = 'canvas-step-title';
+                title.textContent = (meta && meta.name ? meta.name : bean);
+                var idLabel = document.createElement('div');
+                idLabel.className = 'canvas-step-id';
+                idLabel.textContent = 'ID: ' + id;
+                titleDiv.appendChild(title);
+                titleDiv.appendChild(idLabel);
+
+                var deleteBtn = document.createElement('button');
+                deleteBtn.className = 'canvas-step-delete';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.title = 'Xóa bước này';
+                deleteBtn.onclick = function (e) {
+                    e.stopPropagation();
+                    removeStep(el);
+                };
+
+                header.appendChild(titleDiv);
+                header.appendChild(deleteBtn);
+                el.appendChild(header);
+
+                // Validation
+                if (prev && prev.classList.contains('canvas-step')) {
+                    var validation = validateConnection(prev, el, meta);
+                    var validDiv = document.createElement('div');
+                    validDiv.className = 'canvas-step-validation ' + (validation.valid ? 'validation-success' : 'validation-error');
+                    validDiv.innerHTML = '<span class="validation-icon">' + (validation.valid ? '✓' : '⚠') + '</span> ' + validation.message;
+                    el.appendChild(validDiv);
+
+                    if (validation.valid) {
+                        el.classList.add('valid');
+                    } else {
+                        el.classList.add('invalid');
+                    }
+                }
+
+                canvasInner.appendChild(el);
+
+                el.addEventListener('click', function () {
+                    openParamEditor(bean, el);
+                });
+            }
+
+            function validateConnection(prevEl, nextEl, nextMeta) {
+                try {
+                    var prevOuts = JSON.parse(prevEl.dataset.outputs || '[]');
+                    var nextIns = (nextMeta && nextMeta.inputs) || [];
+
+                    if (prevOuts.length === 0) {
+                        return { valid: true, message: 'Bước trước không có output' };
+                    }
+
+                    if (nextIns.length === 0) {
+                        return { valid: true, message: 'Bước này không cần input' };
+                    }
+
+                    var prevType = (prevOuts[0].type || '').toLowerCase();
+                    var nextType = (nextIns[0].type || '').toLowerCase();
+
+                    if (prevType && nextType && prevType !== nextType) {
+                        return {
+                            valid: false,
+                            message: 'Không khớp kiểu dữ liệu: ' + prevType + ' → ' + nextType
+                        };
+                    }
+
+                    return {
+                        valid: true,
+                        message: 'Kết nối hợp lệ: ' + prevType + ' → ' + nextType
+                    };
+                } catch (e) {
+                    return { valid: false, message: 'Lỗi kiểm tra: ' + e.message };
+                }
+            }
+
+            function removeStep(element) {
+                var next = element.nextElementSibling;
+                if (next && next.classList.contains('step-connector')) {
+                    next.remove();
+                } else {
+                    var prev = element.previousElementSibling;
+                    if (prev && prev.classList.contains('step-connector')) {
+                        prev.remove();
+                    }
+                }
+                element.remove();
+                updateStats();
+            }
+
+            function updateStats() {
+                var steps = $all('.canvas-step');
+                var valid = $all('.canvas-step.valid').length;
+                var invalid = $all('.canvas-step.invalid').length;
+
+                $('#totalSteps').textContent = steps.length;
+                $('#validSteps').textContent = valid;
+                $('#invalidSteps').textContent = invalid;
+            }
+
+            // Export JSON
+            $('#exportBtn').addEventListener('click', function () {
+                var steps = [];
+                $all('.canvas-step').forEach(function (c, idx) {
+                    steps.push({
+                        id: c.dataset.stepId,
+                        bean: c.getAttribute('data-bean'),
+                        input: {},
+                        outputKey: null
+                    });
+                });
+
+                if (steps.length === 0) {
+                    alert('⚠ Không có bước nào để export!');
+                    return;
+                }
+
+                var json = { name: 'New Pipeline', steps: steps };
+                resultArea.textContent = JSON.stringify(json, null, 2);
+            });
+
+            // Save
+            $('#saveBtn').addEventListener('click', function () {
+                try {
+                    var payload = JSON.parse(resultArea.textContent || '{}');
+                    fetch('/A0/WLA0_0100/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).then(r => r.json()).then(j => {
+                        alert('✓ Đã lưu thành công: ' + JSON.stringify(j));
+                    });
+                } catch (e) {
+                    alert('⚠ Vui lòng Export JSON trước');
+                }
+            });
+
+            // Run
+            $('#runBtn').addEventListener('click', function () {
+                // Get all steps from canvas
+                var canvasSteps = $all('.canvas-step');
+
+                if (canvasSteps.length === 0) {
+                    alert('⚠ Pipeline trống! Vui lòng thêm các bước xử lý.');
+                    return;
+                }
+
+                // Build payload from canvas
+                var steps = [];
+                canvasSteps.forEach(function (c, idx) {
+                    var bean = c.getAttribute('data-bean');
+                    steps.push({
+                        id: c.dataset.stepId,
+                        bean: bean,
+                        input: {},
+                        outputKey: null,
+                        meta: stepMeta[bean]
+                    });
+                });
+
+                var payload = { name: 'Pipeline', steps: steps };
+
+                // Show input modal for all steps
+                showPipelineInputModal(payload);
+            });
+
+            function showPipelineInputModal(payload) {
+                var modal = $('#pipelineInputModal');
+                var backdrop = $('#modalBackdrop');
+                var body = $('#pipelineInputBody');
+
+                body.innerHTML = '';
+
+                var hasAnyInput = false;
+
+                // Create input sections for each step that has inputs
+                payload.steps.forEach(function (step, idx) {
+                    var meta = step.meta;
+                    if (!meta || !meta.inputs || meta.inputs.length === 0) {
+                        return; // Skip steps without inputs
+                    }
+
+                    hasAnyInput = true;
+
+                    var section = document.createElement('div');
+                    section.className = 'step-input-section';
+
+                    var header = document.createElement('div');
+                    header.className = 'step-input-header';
+
+                    var number = document.createElement('div');
+                    number.className = 'step-input-number';
+                    number.textContent = (idx + 1);
+
+                    var title = document.createElement('div');
+                    title.className = 'step-input-title';
+                    title.textContent = meta.name || step.bean;
+
+                    header.appendChild(number);
+                    header.appendChild(title);
+                    section.appendChild(header);
+
+                    // Add input fields for this step
+                    meta.inputs.forEach(function (p) {
+                        var id = 'step-' + idx + '-param-' + p.name;
+                        var row = document.createElement('div');
+                        row.className = 'mb-3';
+
+                        var label = document.createElement('label');
+                        label.className = 'form-label';
+                        label.innerHTML = '<strong>' + p.name + '</strong>' +
+                            (p.required ? ' <span style="color:#ef4444">*</span>' : '') +
+                            ' <span style="color:#64748b">(' + (p.type || 'string') + ')</span>';
+
+                        var inp;
+                        if (p.type === 'file' || p.name.toLowerCase().includes('file') || p.name.toLowerCase().includes('image')) {
+                            inp = document.createElement('input');
+                            inp.type = 'file';
+                            inp.className = 'form-control';
+                            inp.id = id;
+                            inp.dataset.stepIdx = idx;
+                            inp.dataset.paramName = p.name;
+                            inp.dataset.isFile = 'true';
+                            if (p.name.toLowerCase().includes('image')) {
+                                inp.accept = 'image/*';
+                            }
+                        } else if (p.type === 'textarea' || (p.type === 'text' && p.name.toLowerCase().includes('content'))) {
+                            inp = document.createElement('textarea');
+                            inp.className = 'form-control';
+                            inp.id = id;
+                            inp.rows = 3;
+                            inp.placeholder = 'Nhập ' + p.name;
+                            inp.dataset.stepIdx = idx;
+                            inp.dataset.paramName = p.name;
+                        } else if (p.type === 'number' || p.type === 'int' || p.type === 'integer') {
+                            inp = document.createElement('input');
+                            inp.type = 'number';
+                            inp.className = 'form-control';
+                            inp.id = id;
+                            inp.placeholder = 'Nhập ' + p.name;
+                            inp.dataset.stepIdx = idx;
+                            inp.dataset.paramName = p.name;
+                        } else if (p.type === 'boolean' || p.type === 'bool') {
+                            inp = document.createElement('select');
+                            inp.className = 'form-control';
+                            inp.id = id;
+                            inp.dataset.stepIdx = idx;
+                            inp.dataset.paramName = p.name;
+                            var opt1 = document.createElement('option');
+                            opt1.value = 'true';
+                            opt1.textContent = 'True';
+                            var opt2 = document.createElement('option');
+                            opt2.value = 'false';
+                            opt2.textContent = 'False';
+                            inp.appendChild(opt1);
+                            inp.appendChild(opt2);
+                        } else {
+                            inp = document.createElement('input');
+                            inp.type = 'text';
+                            inp.className = 'form-control';
+                            inp.id = id;
+                            inp.placeholder = 'Nhập ' + p.name;
+                            inp.dataset.stepIdx = idx;
+                            inp.dataset.paramName = p.name;
+                        }
+
+                        if (p.defaultValue) {
+                            inp.value = p.defaultValue;
+                        }
+
+                        row.appendChild(label);
+                        row.appendChild(inp);
+                        section.appendChild(row);
+                    });
+
+                    body.appendChild(section);
+                });
+
+                if (!hasAnyInput) {
+                    body.innerHTML = '<div class="no-inputs-notice">✓ Pipeline này không cần tham số đầu vào. Nhấn "Chạy Pipeline" để thực thi.</div>';
+                }
+
+                modal.style.display = 'block';
+                backdrop.classList.add('show');
+
+                $('#pipelineInputRun').onclick = function () {
+                    // Collect all inputs and update payload
+                    var hasFile = false;
+                    var fileData = null;
+
+                    payload.steps.forEach(function (step, idx) {
+                        var inputData = {};
+                        var meta = step.meta;
+
+                        if (!meta || !meta.inputs) return;
+
+                        meta.inputs.forEach(function (p) {
+                            var id = 'step-' + idx + '-param-' + p.name;
+                            var elem = document.getElementById(id);
+
+                            if (!elem) return;
+
+                            if (elem.dataset.isFile === 'true') {
+                                if (elem.files && elem.files.length > 0) {
+                                    hasFile = true;
+                                    fileData = elem.files[0];
+                                    inputData[p.name] = 'FILE_UPLOAD'; // Placeholder
+                                }
+                            } else {
+                                inputData[p.name] = elem.value;
+                            }
+                        });
+
+                        step.input = inputData;
+                    });
+
+                    // Remove meta from payload before sending
+                    var cleanPayload = {
+                        name: payload.name,
+                        steps: payload.steps.map(function (s) {
+                            return {
+                                id: s.id,
+                                bean: s.bean,
+                                input: s.input,
+                                outputKey: s.outputKey
+                            };
+                        })
+                    };
+
+                    // Update result area with the payload
+                    resultArea.textContent = JSON.stringify(cleanPayload, null, 2);
+
+                    // Close modal
+                    modal.style.display = 'none';
+                    backdrop.classList.remove('show');
+
+                    // Run pipeline
+                    if (hasFile && fileData) {
+                        runPipelineWithFile(cleanPayload, fileData);
+                    } else {
+                        runPipeline(cleanPayload);
+                    }
+                };
+
+                $('#pipelineInputClose').onclick = function () {
+                    modal.style.display = 'none';
+                    backdrop.classList.remove('show');
+                };
+            }
+
+            function runPipeline(payload) {
+                resultArea.textContent = 'Đang chạy pipeline...';
+                fetch('/A0/WLA0_0100/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(r => r.json()).then(j => {
+                    renderResult(j);
+                }).catch(err => {
+                    resultArea.textContent = 'Lỗi: ' + err;
+                });
+            }
+
+            function runPipelineWithFile(payload, file) {
+                resultArea.textContent = 'Đang chạy pipeline với file...';
+                var fd = new FormData();
+                fd.append('file', file);
+                fd.append('pipeline', JSON.stringify(payload));
+
+                fetch('/A0/WLA0_0100/run-with-file', {
+                    method: 'POST',
+                    body: fd
+                }).then(r => r.json()).then(j => {
+                    renderResult(j);
+                }).catch(err => {
+                    resultArea.textContent = 'Lỗi: ' + err;
+                });
+            }
+
+            // Clear all
+            $('#clearBtn').addEventListener('click', function () {
+                if (confirm('Bạn có chắc muốn xóa tất cả các bước?')) {
+                    canvasInner.innerHTML = '';
+                    resultArea.textContent = '';
+                    updateStats();
+                }
+            });
+
+            function renderResult(j) {
+                try {
+                    var pretty = JSON.stringify(j, null, 2);
+                    var html = '<div style="white-space:pre-wrap; font-family:monospace; background:#f8f9fa; padding:0.5rem;">' + escapeHtml(pretty) + '</div>';
+
+                    var urls = JSON.stringify(j).match(/"(\/A0\/WLA0_0100\/output\?name=[^"\\]+)"/g) || [];
+                    var thumbs = '';
+                    urls.forEach(function (m) {
+                        var u = m.replace(/^"|"$/g, '');
+                        if (u.match(/\.(png|jpg|jpeg|gif|bmp)$/i)) {
+                            thumbs += '<div style="display:inline-block;margin:4px;text-align:center;">';
+                            thumbs += '<a href="' + u + '" target="_blank"><img src="' + u + '" style="max-width:160px;max-height:120px;border:1px solid #ddd;border-radius:4px"/></a>';
+                            thumbs += '<div style="margin-top:4px"><a href="' + u + '" target="_blank">Tải xuống</a></div></div>';
+                        } else {
+                            thumbs += '<div><a href="' + u + '" target="_blank">Xem kết quả</a></div>';
+                        }
+                    });
+
+                    resultArea.innerHTML = '';
+                    if (thumbs) {
+                        var container = document.createElement('div');
+                        container.innerHTML = thumbs + '<hr/>' + html;
+                        resultArea.appendChild(container);
+                    } else {
+                        resultArea.textContent = pretty;
+                    }
+                } catch (e) {
+                    resultArea.textContent = JSON.stringify(j, null, 2);
+                }
+            }
+
+            function escapeHtml(s) {
+                return s.replace(/[&<>"]/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+                });
+            }
+
+            // Parameter editor modal
+            function openParamEditor(bean, element) {
+                var modal = $('#stepParamModal');
+                var backdrop = $('#modalBackdrop');
+                var body = $('#modalBody');
+                var title = $('#modalTitle');
+                var result = $('#modalResult');
+
+                title.textContent = bean;
+                result.textContent = '';
+
+                fetch('/A0/WLA0_0100/steps').then(r => r.json()).then(list => {
+                    var meta = list.find(s => s.bean === bean);
+                    body.innerHTML = '';
+
+                    if (!meta) {
+                        body.innerHTML = '<div class="text-muted">Không có metadata cho ' + bean + '</div>';
+                        modal.style.display = 'block';
+                        backdrop.classList.add('show');
+                        return;
+                    }
+
+                    var inputs = meta.inputs || [];
+                    inputs.forEach(function (p) {
+                        var id = 'param-' + p.name;
+                        var row = document.createElement('div');
+                        row.className = 'mb-2';
+
+                        var label = document.createElement('label');
+                        label.className = 'form-label';
+                        label.textContent = p.name + (p.required ? ' *' : '') + ' (' + (p.type || 'string') + ')';
+
+                        var inp = document.createElement('input');
+                        inp.className = 'form-control';
+                        inp.id = id;
+                        inp.value = p.defaultValue || '';
+                        inp.placeholder = 'Nhập ' + p.name;
+
+                        row.appendChild(label);
+                        row.appendChild(inp);
+                        body.appendChild(row);
+                    });
+
+                    modal.style.display = 'block';
+                    backdrop.classList.add('show');
+
+                    $('#modalRun').onclick = function () {
+                        var input = {};
+                        inputs.forEach(function (p) {
+                            input[p.name] = $('#param-' + p.name).value;
+                        });
+                        result.textContent = 'Đang chạy...';
+                        fetch('/A0/WLA0_0100/run-step', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ bean: bean, input: input })
+                        }).then(r => r.json()).then(j => {
+                            result.textContent = JSON.stringify(j, null, 2);
+                        }).catch(err => {
+                            result.textContent = 'Lỗi: ' + err;
+                        });
+                    };
+                });
+
+                function closeModal() {
+                    modal.style.display = 'none';
+                    backdrop.classList.remove('show');
+                }
+
+                $('#modalClose').onclick = closeModal;
+                backdrop.onclick = closeModal;
+            }
+        })();
+    </script>
+</body>
+
+</html>

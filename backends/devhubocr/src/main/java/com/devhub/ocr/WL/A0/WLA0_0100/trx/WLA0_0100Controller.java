@@ -1,7 +1,5 @@
-package com.devhub.ocr.QA.A0.WLA0_0100.trx;
+package com.devhub.ocr.WL.A0.WLA0_0100.trx;
 
-import com.devhub.ocr.QA.A0.WLA0_0100.dto.PipelineDTO;
-import com.devhub.ocr.QA.A0.WLA0_0100.mod.WLA0_0100Mod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +17,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.devhub.ocr.WL.A0.WLA0_0100.dto.PipelineDTO;
+import com.devhub.ocr.WL.A0.WLA0_0100.mod.WLA0_0100Mod;
 import com.devhub.ocr.pipeline.PipelineParam;
 import com.devhub.ocr.pipeline.PipelineRegistry;
 import com.devhub.ocr.pipeline.PipelineStep;
@@ -43,7 +44,7 @@ public class WLA0_0100Controller {
     @GetMapping("")
     public String index(Model model) {
         model.addAttribute("pipelines", mod.listPipelines());
-        return "html/A0/WLA0_0100/index";
+        return "html/WL/A0/WLA0_0100/index";
     }
 
     @ResponseBody
@@ -78,7 +79,7 @@ public class WLA0_0100Controller {
 
     @ResponseBody
     @PostMapping("/run-step")
-    public ResponseEntity<?> runStep(@RequestBody com.devhub.ocr.QA.A0.WLA0_0100.trx.RunStepRequest req) {
+    public ResponseEntity<?> runStep(@RequestBody com.devhub.ocr.WL.A0.WLA0_0100.trx.RunStepRequest req) {
         try {
             String bean = req.getBean();
             Map<String,Object> input = req.getInput();
@@ -183,5 +184,17 @@ public class WLA0_0100Controller {
             try { m.put("outputs", s.getOutputParams()); } catch(Exception e){ m.put("outputs", List.of()); }
             return m;
         }).collect(Collectors.toList());
+    }
+
+    @ResponseBody
+    @PostMapping("/validate-pipeline")
+    public Map<String,Object> validatePipeline(@RequestBody com.devhub.ocr.WL.A0.WLA0_0100.trx.ValidatePipelineRequest req) {
+        try {
+            PipelineDTO dto = req.getPipeline();
+            Map<String,String> initial = req.getInitialTypes();
+            return mod.validatePipeline(dto, initial);
+        } catch (Exception e) {
+            return Map.of("ok", false, "error", e.getMessage());
+        }
     }
 }

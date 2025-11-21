@@ -1,4 +1,4 @@
-package com.devhub.ocr.QA.A0.WLA0_0100.trx;
+package com.devhub.ocr.WL.A0.WLA0_0100.trx;
 
 import java.util.Map;
 

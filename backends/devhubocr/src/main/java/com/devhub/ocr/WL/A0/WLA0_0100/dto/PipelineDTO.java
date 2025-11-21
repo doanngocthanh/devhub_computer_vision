@@ -1,4 +1,4 @@
-package com.devhub.ocr.QA.A0.WLA0_0100.dto;
+package com.devhub.ocr.WL.A0.WLA0_0100.dto;
 
 import java.util.List;
 

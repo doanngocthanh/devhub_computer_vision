@@ -610,3 +610,7 @@ pre {
       letter-spacing: 0.5px;
       margin-bottom: 0.5rem;
     }
+    pre {
+      color: green;
+      background-color: black;  
+    }

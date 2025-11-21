@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang chủ - DevHub OCR</title>
+  <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+  <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+  <style>
+    #imageCanvas {
+      display: block;
+      cursor: crosshair;
+      max-width: 100%;
+      height: auto;
+      border: 2px solid var(--tblr-border-color);
+      border-radius: var(--tblr-border-radius);
+    }
+    
+    .bbox-item {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .bbox-item:hover {
+      background-color: var(--tblr-hover-bg);
+    }
+    
+    .bbox-item.selected {
+      background-color: var(--tblr-primary-lt);
+      border-left: 3px solid var(--tblr-primary);
+    }
+    
+    .color-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: var(--tblr-border-radius-sm);
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div th:replace="common/sidebar :: sidebar"></div>
+    
+    <div class="page-wrapper">
+      <div th:replace="common/header :: header"></div>
+
+      <div class="page-body">
+        <div class="container-xl">
+          
+          <!-- Header -->
+          <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <h2 class="page-title">
+                  <i class="fas fa-scanner me-2"></i>
+                  Tess4J OCR — BBox Selection
+                </h2>
+                <div class="text-muted mt-1">Upload ảnh, vẽ vùng chọn và trích xuất văn bản</div>
+              </div>
+              <div class="col-auto ms-auto">
+                <div class="btn-list">
+                  <span class="badge badge-outline text-blue fs-3 px-3 py-2">
+                    <i class="fas fa-vector-square me-1"></i>
+                    <span id="totalBboxCount">0</span> vùng
+                  </span>
+                  <span class="badge badge-outline text-green fs-3 px-3 py-2">
+                    <i class="fas fa-font me-1"></i>
+                    <span id="totalCharsCount">0</span> ký tự
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Card -->
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-5">
+                  <label class="form-label">
+                    <i class="fas fa-image me-1"></i>
+                    Chọn ảnh
+                  </label>
+                  <input class="form-control" type="file" id="file" accept="image/*" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">
+                    <i class="fas fa-language me-1"></i>
+                    Ngôn ngữ
+                  </label>
+                  <input class="form-control" id="lang" placeholder="vie, eng..." value="vie" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">&nbsp;</label>
+                  <button class="btn btn-danger w-100" id="clearAllBtn">
+                    <i class="fas fa-trash me-1"></i>
+                    Xóa tất cả lịch sử
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="row row-cards">
+            <!-- Canvas -->
+            <div class="col-lg-8">
+              <div class="card">
+                <div class="card-header">
+                  <div class="row w-100 align-items-center">
+                    <div class="col">
+                      <h3 class="card-title">Vùng làm việc</h3>
+                      <div class="text-muted small" id="selectionInfo">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Chọn ảnh để bắt đầu
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" id="zoomInBtn" title="Phóng to">
+                          <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" id="zoomOutBtn" title="Thu nhỏ">
+                          <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" id="resetZoomBtn" title="Đặt lại">
+                          <i class="fas fa-undo"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body text-center">
+                  <div id="canvasWrap" class="overflow-auto">
+                    <canvas id="imageCanvas"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- History -->
+            <div class="col-lg-4">
+              <div class="card" style="position: sticky; top: 1rem;">
+                <div class="card-header">
+                  <h3 class="card-title">
+                    <i class="fas fa-history me-2"></i>
+                    Lịch sử vùng chọn
+                  </h3>
+                </div>
+                <div class="card-body p-0">
+                  <div id="historyList" style="max-height: 600px; overflow-y: auto;">
+                    <div class="empty">
+                      <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                      </div>
+                      <p class="empty-title">Chưa có lịch sử</p>
+                      <p class="empty-subtitle text-muted">Vẽ vùng chọn để bắt đầu</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div th:replace="common/footer :: footer"></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal modal-blur fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Chi tiết vùng chọn</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Label</label>
+            <input type="text" class="form-control" id="modalLabel" placeholder="Đặt tên cho vùng chọn...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tọa độ</label>
+            <div class="row g-2">
+              <div class="col-3">
+                <input type="text" class="form-control" id="modalX" readonly>
+                <small class="text-muted">X</small>
+              </div>
+              <div class="col-3">
+                <input type="text" class="form-control" id="modalY" readonly>
+                <small class="text-muted">Y</small>
+              </div>
+              <div class="col-3">
+                <input type="text" class="form-control" id="modalW" readonly>
+                <small class="text-muted">Width</small>
+              </div>
+              <div class="col-3">
+                <input type="text" class="form-control" id="modalH" readonly>
+                <small class="text-muted">Height</small>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Văn bản trích xuất</label>
+            <textarea class="form-control" id="modalText" rows="8" readonly></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-danger" id="modalDeleteBtn">
+            <i class="fas fa-trash me-1"></i>
+            Xóa
+          </button>
+          <button type="button" class="btn btn-primary" id="modalSaveBtn">
+            <i class="fas fa-save me-1"></i>
+            Lưu label
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script th:src="@{/js/tabler.min.js}"></script>
+  <script>
+    (function () {
+      const fileInput = document.getElementById('file');
+      const langInput = document.getElementById('lang');
+      const canvas = document.getElementById('imageCanvas');
+      const selectionInfo = document.getElementById('selectionInfo');
+      const historyList = document.getElementById('historyList');
+      const clearAllBtn = document.getElementById('clearAllBtn');
+      const totalBboxCount = document.getElementById('totalBboxCount');
+      const totalCharsCount = document.getElementById('totalCharsCount');
+
+      let ctx = null;
+      let img = null;
+      let scale = 1;
+      let dragging = false;
+      let startX = 0, startY = 0, curX = 0, curY = 0;
+      let backendRawPath = null;
+      let bboxHistory = [];
+      let currentBboxId = null;
+      let nextId = 1;
+
+      const COLORS = ['#206bc4', '#d63939', '#f76707', '#0ca678', '#ae3ec9', '#1971c2', '#e8590c'];
+
+      function getRandomColor() {
+        return COLORS[Math.floor(Math.random() * COLORS.length)];
+      }
+
+      function updateStats() {
+        totalBboxCount.textContent = bboxHistory.length;
+        const totalChars = bboxHistory.reduce((sum, item) => sum + (item.text || '').length, 0);
+        totalCharsCount.textContent = totalChars;
+      }
+
+      async function fetchJsonSafe(url, opts) {
+        const res = await fetch(url, opts);
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          return await res.json();
+        }
+        const txt = await res.text();
+        throw new Error('Expected JSON response but got: ' + txt);
+      }
+
+      async function uploadFileToServer(file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('lang', langInput.value || '');
+        try {
+          const data = await fetchJsonSafe('/CP/A0/CPA0_0100/upload-and-ocr', { method: 'POST', body: fd });
+          if (data.ok) {
+            backendRawPath = data.rawPath || null;
+            selectionInfo.innerHTML = '<i class="fas fa-check-circle me-1 text-success"></i>Đã tải ảnh lên server';
+          }
+        } catch (err) {
+          console.error('uploadFileToServer error', err);
+        }
+      }
+
+      function loadImageFileToCanvas(file) {
+        const url = URL.createObjectURL(file);
+        img = new Image();
+        img.onload = () => {
+          const maxW = Math.min(window.innerWidth - 120, 800);
+          const dispW = Math.min(img.naturalWidth, maxW);
+          const dispH = Math.round(img.naturalHeight * (dispW / img.naturalWidth));
+          scale = dispW / img.naturalWidth;
+
+          const dpr = window.devicePixelRatio || 1;
+          canvas.style.width = dispW + 'px';
+          canvas.style.height = dispH + 'px';
+          canvas.width = Math.round(dispW * dpr);
+          canvas.height = Math.round(dispH * dpr);
+
+          canvas.dataset.dispW = String(dispW);
+          canvas.dataset.dispH = String(dispH);
+
+          ctx = canvas.getContext('2d');
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          redrawCanvas();
+          selectionInfo.innerHTML = '<i class="fas fa-hand-pointer me-1 text-primary"></i>Kéo chuột trên ảnh để tạo vùng chọn';
+        };
+        img.src = url;
+      }
+
+      fileInput.addEventListener('change', async () => {
+        if (!fileInput.files || fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+        uploadFileToServer(file);
+        loadImageFileToCanvas(file);
+      });
+
+      function redrawCanvas() {
+        if (!ctx || !img) return;
+        const dispW = parseInt(canvas.dataset.dispW || canvas.width, 10);
+        const dispH = parseInt(canvas.dataset.dispH || canvas.height, 10);
+        ctx.clearRect(0, 0, dispW, dispH);
+        ctx.drawImage(img, 0, 0, dispW, dispH);
+
+        bboxHistory.forEach(bbox => {
+          ctx.save();
+          ctx.strokeStyle = bbox.color;
+          ctx.lineWidth = bbox.id === currentBboxId ? 3 : 2;
+          ctx.setLineDash(bbox.id === currentBboxId ? [] : []);
+          ctx.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
+
+          if (bbox.label) {
+            ctx.fillStyle = bbox.color;
+            ctx.font = 'bold 12px sans-serif';
+            const textWidth = ctx.measureText(bbox.label).width;
+            ctx.fillRect(bbox.x, bbox.y - 20, textWidth + 8, 18);
+            ctx.fillStyle = '#fff';
+            ctx.fillText(bbox.label, bbox.x + 4, bbox.y - 6);
+          }
+          ctx.restore();
+        });
+
+        if (dragging) {
+          ctx.save();
+          ctx.strokeStyle = '#ff4d4f';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 4]);
+          ctx.strokeRect(Math.min(startX, curX), Math.min(startY, curY), Math.abs(curX - startX), Math.abs(curY - startY));
+          ctx.restore();
+        }
+      }
+
+      canvas.addEventListener('mousedown', (ev) => {
+        if (!img) return;
+        dragging = true;
+        const r = canvas.getBoundingClientRect();
+        startX = ev.clientX - r.left;
+        startY = ev.clientY - r.top;
+        curX = startX;
+        curY = startY;
+        redrawCanvas();
+      });
+
+      canvas.addEventListener('mousemove', (ev) => {
+        if (!img || !dragging) return;
+        const r = canvas.getBoundingClientRect();
+        curX = ev.clientX - r.left;
+        curY = ev.clientY - r.top;
+        redrawCanvas();
+      });
+
+      window.addEventListener('mouseup', async (ev) => {
+        if (!img || !dragging) return;
+        dragging = false;
+        const r = canvas.getBoundingClientRect();
+        curX = ev.clientX - r.left;
+        curY = ev.clientY - r.top;
+
+        const x = Math.round(Math.min(startX, curX));
+        const y = Math.round(Math.min(startY, curY));
+        const w = Math.round(Math.abs(curX - startX));
+        const h = Math.round(Math.abs(curY - startY));
+
+        if (w < 5 || h < 5) {
+          redrawCanvas();
+          return;
+        }
+
+        const natX = Math.round(x / scale);
+        const natY = Math.round(y / scale);
+        const natW = Math.round(w / scale);
+        const natH = Math.round(h / scale);
+
+        const newBbox = {
+          id: nextId++,
+          x, y, w, h,
+          natX, natY, natW, natH,
+          text: '',
+          label: '',
+          color: getRandomColor(),
+          timestamp: Date.now()
+        };
+
+        bboxHistory.push(newBbox);
+        currentBboxId = newBbox.id;
+        renderHistory();
+        updateStats();
+        redrawCanvas();
+
+        if (backendRawPath) {
+          await runOcrOnCoords(newBbox);
+        }
+      });
+
+      async function runOcrOnCoords(bbox) {
+        selectionInfo.innerHTML = '<i class="fas fa-spinner fa-spin me-1 text-primary"></i>Đang xử lý OCR...';
+        try {
+          const data = await fetchJsonSafe('/CP/A0/CPA0_0100/ocr-bbox', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              path: backendRawPath,
+              x: bbox.natX,
+              y: bbox.natY,
+              w: bbox.natW,
+              h: bbox.natH,
+              lang: langInput.value || ''
+            })
+          });
+          if (data.ok) {
+            bbox.text = data.text || '(không có văn bản)';
+            renderHistory();
+            updateStats();
+            selectionInfo.innerHTML = '<i class="fas fa-check-circle me-1 text-success"></i>Hoàn thành OCR';
+          }
+        } catch (err) {
+          console.error('runOcrOnCoords error', err);
+          bbox.text = 'Lỗi: ' + err.message;
+          renderHistory();
+        }
+      }
+
+      function renderHistory() {
+        if (bboxHistory.length === 0) {
+          historyList.innerHTML = `
+            <div class="empty">
+              <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+              </div>
+              <p class="empty-title">Chưa có lịch sử</p>
+              <p class="empty-subtitle text-muted">Vẽ vùng chọn để bắt đầu</p>
+            </div>`;
+          return;
+        }
+
+        const sorted = [...bboxHistory].sort((a, b) => b.timestamp - a.timestamp);
+        historyList.innerHTML = sorted.map((bbox, index) => `
+          <div class="bbox-item list-group-item list-group-item-action ${bbox.id === currentBboxId ? 'selected' : ''}" data-id="${bbox.id}">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <div class="color-indicator" style="background: ${bbox.color}"></div>
+              </div>
+              <div class="col text-truncate">
+                <div class="text-reset d-block fw-bold">${bbox.label || `Vùng #${sorted.length - index}`}</div>
+                <div class="text-muted text-truncate mt-n1">${bbox.text || '<em>Đang xử lý...</em>'}</div>
+              </div>
+              <div class="col-auto">
+                <div class="btn-list">
+                  <button class="btn btn-sm btn-ghost-primary btn-icon view-btn" data-id="${bbox.id}" title="Xem">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn btn-sm btn-ghost-danger btn-icon delete-btn" data-id="${bbox.id}" title="Xóa">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-1">
+              <div class="col-auto text-muted small">
+                <i class="fas fa-expand-arrows-alt me-1"></i>${bbox.w}×${bbox.h}px
+              </div>
+              <div class="col-auto text-muted small">
+                <i class="fas fa-clock me-1"></i>${new Date(bbox.timestamp).toLocaleTimeString('vi-VN')}
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        document.querySelectorAll('.bbox-item').forEach(el => {
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('.btn')) return;
+            currentBboxId = parseInt(el.dataset.id);
+            renderHistory();
+            redrawCanvas();
+          });
+        });
+
+        document.querySelectorAll('.view-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showDetailModal(parseInt(btn.dataset.id));
+          });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteBbox(parseInt(btn.dataset.id));
+          });
+        });
+      }
+
+      function deleteBbox(id) {
+        bboxHistory = bboxHistory.filter(b => b.id !== id);
+        if (currentBboxId === id) currentBboxId = null;
+        renderHistory();
+        updateStats();
+        redrawCanvas();
+      }
+
+      clearAllBtn.addEventListener('click', () => {
+        if (confirm('Xóa tất cả lịch sử vùng chọn?')) {
+          bboxHistory = [];
+          currentBboxId = null;
+          renderHistory();
+          updateStats();
+          redrawCanvas();
+        }
+      });
+
+      let detailModalInstance = null;
+      let currentDetailId = null;
+
+      function showDetailModal(id) {
+        const bbox = bboxHistory.find(b => b.id === id);
+        if (!bbox) return;
+
+        currentDetailId = id;
+        document.getElementById('modalLabel').value = bbox.label || '';
+        document.getElementById('modalX').value = bbox.natX;
+        document.getElementById('modalY').value = bbox.natY;
+        document.getElementById('modalW').value = bbox.natW;
+        document.getElementById('modalH').value = bbox.natH;
+        document.getElementById('modalText').value = bbox.text || '';
+
+        if (!detailModalInstance) {
+          detailModalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
+        }
+        detailModalInstance.show();
+      }
+
+      document.getElementById('modalSaveBtn').addEventListener('click', () => {
+        const bbox = bboxHistory.find(b => b.id === currentDetailId);
+        if (bbox) {
+          bbox.label = document.getElementById('modalLabel').value.trim();
+          renderHistory();
+          redrawCanvas();
+        }
+        detailModalInstance.hide();
+      });
+
+      document.getElementById('modalDeleteBtn').addEventListener('click', () => {
+        if (confirm('Xóa vùng chọn này?')) {
+          deleteBbox(currentDetailId);
+          detailModalInstance.hide();
+        }
+      });
+
+      let zoomLevel = 1;
+      document.getElementById('zoomInBtn').addEventListener('click', () => {
+        zoomLevel = Math.min(zoomLevel + 0.2, 3);
+        canvas.style.transform = `scale(${zoomLevel})`;
+      });
+      document.getElementById('zoomOutBtn').addEventListener('click', () => {
+        zoomLevel = Math.max(zoomLevel - 0.2, 0.5);
+        canvas.style.transform = `scale(${zoomLevel})`;
+      });
+      document.getElementById('resetZoomBtn').addEventListener('click', () => {
+        zoomLevel = 1;
+        canvas.style.transform = 'scale(1)';
+      });
+
+    })();
+  </script>
+
+</body>
+</html>
