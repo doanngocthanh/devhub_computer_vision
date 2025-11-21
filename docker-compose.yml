@@ -3,7 +3,7 @@ version: '3.8'
 services:
   devhubocr:
     build:
-      context: ./backends/devhubocr
+      context: .
       dockerfile: Dockerfile
     image: devhubocr:local
     ports:

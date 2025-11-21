@@ -38,6 +38,14 @@ RUN if command -v python3.10 >/dev/null 2>&1; then \
 # copy the built jar from builder
 COPY --from=builder /build/target/*.jar app.jar
 
+# include seed data in the image so we can copy it into mounted volumes at container start
+# these paths will be copied by the entrypoint into the bind-mounted volume locations
+COPY db_local /opt/seeds/db_local
+COPY backends/devhubocr/uploads /opt/seeds/uploads
+COPY uploads /opt/seeds/workspace-uploads
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh || true
+
 # expose port
 EXPOSE 8080
 
@@ -47,4 +55,4 @@ ENV JAVA_OPTS="-Xms128m -Xmx512m"
 ENV DEVHUB_DB_PATH=/data/database.db
 ENV DEVHUB_DB_MIGRATIONS=/data/sql
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.datasource.url=jdbc:sqlite:${DEVHUB_DB_PATH} -jar /app/app.jar"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
