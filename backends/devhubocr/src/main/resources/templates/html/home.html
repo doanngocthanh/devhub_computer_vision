@@ -1,44 +1,443 @@
-
-
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trang chủ - DevHub OCR</title>
-    <!-- Local Tabler / Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR CV - Tìm Ứng Viên Thông Minh</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --accent-color: #06b6d4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card {
+            border: none;
+            border-radius: 15px;
+            padding: 30px;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .icon-blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .icon-green {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .icon-purple {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .icon-orange {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .process-step {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .btn-custom {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-light-custom:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .pricing-card {
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            padding: 40px 0 20px;
+        }
+    </style>
 </head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-file-alt text-primary me-2"></i>OCR CV Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Tính Năng</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#process">Quy Trình</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Bảng Giá</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-2 px-4" href="#contact">Dùng Thử</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<body class="antialiased">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Đọc CV Tự Động & Tìm Ứng Viên Hoàn Hảo</h1>
+                    <p class="lead mb-4">Công nghệ OCR tiên tiến giúp bạn số hóa hồ sơ ứng viên trong tích tắc và tìm kiếm ứng viên phù hợp với độ chính xác cao</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-light btn-lg btn-custom">
+                            <i class="fas fa-rocket me-2"></i>Bắt Đầu Ngay
+                        </button>
+                        <button class="btn btn-outline-light btn-lg btn-custom">
+                            <i class="fas fa-play-circle me-2"></i>Xem Demo
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <i class="fas fa-file-contract" style="font-size: 15rem; opacity: 0.2;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="page">
-        <!-- Sidebar (common) -->
-        <div th:replace="common/sidebar :: sidebar"></div>
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6 stat-item mb-4">
+                    <div class="stat-number"><i class="fas fa-check-circle me-2"></i>99%</div>
+                    <div>Độ chính xác</div>
+                </div>
+                <div class="col-md-3 col-6 stat-item mb-4">
+                    <div class="stat-number"><i class="fas fa-clock me-2"></i>5s</div>
+                    <div>Xử lý 1 CV</div>
+                </div>
+                <div class="col-md-3 col-6 stat-item mb-4">
+                    <div class="stat-number"><i class="fas fa-users me-2"></i>10K+</div>
+                    <div>Khách hàng</div>
+                </div>
+                <div class="col-md-3 col-6 stat-item mb-4">
+                    <div class="stat-number"><i class="fas fa-file-alt me-2"></i>1M+</div>
+                    <div>CV đã xử lý</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <div class="page-wrapper">
-            <!-- Top header (common) -->
-            <div th:replace="common/header :: header"></div>
-
-            <div class="page-body">
-                <div class="container-xl py-5">
-                    <div class="row g-4 mb-4">
-                        https://creativemela.com/themeforest_html/BExin_HTML/BExin/index-4.html
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Tính Năng Nổi Bật</h2>
+                <p class="lead text-muted">Giải pháp toàn diện cho quản lý tuyển dụng</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon icon-blue">
+                            <i class="fas fa-scanner"></i>
+                        </div>
+                        <h4>OCR Thông Minh</h4>
+                        <p class="text-muted">Quét và trích xuất thông tin từ CV với độ chính xác cao, hỗ trợ đa định dạng (PDF, JPG, PNG)</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon icon-green">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h4>Tìm Kiếm Nâng Cao</h4>
+                        <p class="text-muted">Tìm ứng viên phù hợp theo kỹ năng, kinh nghiệm, học vấn và nhiều tiêu chí khác</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon icon-purple">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h4>AI Matching</h4>
+                        <p class="text-muted">Thuật toán AI đề xuất ứng viên phù hợp nhất với vị trí tuyển dụng của bạn</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon icon-orange">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h4>Quản Lý Tập Trung</h4>
+                        <p class="text-muted">Lưu trữ và quản lý toàn bộ hồ sơ ứng viên một cách có hệ thống</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div th:replace="common/footer :: footer"></div>
         </div>
-    </div>
+    </section>
 
-  
-    <script th:src="@{/js/tabler.min.js}"></script>
-    <script th:src="@{/js/main.js}"></script>
+    <!-- Process Section -->
+    <section id="process" class="py-5 bg-light">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Quy Trình Hoạt Động</h2>
+                <p class="lead text-muted">Chỉ với 4 bước đơn giản</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <i class="fas fa-upload fa-3x text-primary mb-3"></i>
+                        <h5>Upload CV</h5>
+                        <p class="text-muted">Tải lên CV dạng PDF hoặc hình ảnh</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <i class="fas fa-cogs fa-3x text-primary mb-3"></i>
+                        <h5>Xử Lý OCR</h5>
+                        <p class="text-muted">Hệ thống tự động trích xuất thông tin</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <i class="fas fa-filter fa-3x text-primary mb-3"></i>
+                        <h5>Phân Loại & Lọc</h5>
+                        <p class="text-muted">Dữ liệu được phân loại theo tiêu chí</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <i class="fas fa-user-check fa-3x text-primary mb-3"></i>
+                        <h5>Tìm Ứng Viên</h5>
+                        <p class="text-muted">Tìm và chọn ứng viên phù hợp nhất</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-5">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Bảng Giá Linh Hoạt</h2>
+                <p class="lead text-muted">Chọn gói phù hợp với nhu cầu của bạn</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="pricing-card">
+                        <h3 class="mb-4">Starter</h3>
+                        <div class="price mb-3">$29<span class="fs-5">/tháng</span></div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>100 CV/tháng</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>OCR cơ bản</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tìm kiếm thông thường</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hỗ trợ email</li>
+                        </ul>
+                        <button class="btn btn-outline-primary btn-custom">Chọn Gói</button>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="pricing-card featured">
+                        <div class="badge bg-primary mb-3">PHỔ BIẾN</div>
+                        <h3 class="mb-4">Professional</h3>
+                        <div class="price mb-3">$79<span class="fs-5">/tháng</span></div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>500 CV/tháng</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>OCR nâng cao</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI Matching</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hỗ trợ 24/7</li>
+                        </ul>
+                        <button class="btn btn-primary btn-custom">Chọn Gói</button>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="pricing-card">
+                        <h3 class="mb-4">Enterprise</h3>
+                        <div class="price mb-3">$199<span class="fs-5">/tháng</span></div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Không giới hạn CV</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tất cả tính năng</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>API tích hợp</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Account manager</li>
+                        </ul>
+                        <button class="btn btn-outline-primary btn-custom">Liên Hệ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="display-4 fw-bold mb-4">Sẵn Sàng Tối Ưu Quy Trình Tuyển Dụng?</h2>
+            <p class="lead mb-4">Dùng thử miễn phí 14 ngày - Không cần thẻ tín dụng</p>
+            <button class="btn btn-light btn-lg btn-custom btn-light-custom">
+                <i class="fas fa-rocket me-2"></i>Bắt Đầu Miễn Phí
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-file-alt me-2"></i>OCR CV Pro</h5>
+                    <p class="text-muted">Giải pháp quản lý tuyển dụng thông minh với công nghệ OCR và AI</p>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h6 class="mb-3">Sản Phẩm</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Tính năng</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Bảng giá</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">API</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h6 class="mb-3">Công Ty</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Về chúng tôi</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Blog</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4 mb-4">
+                    <h6 class="mb-3">Liên Hệ</h6>
+                    <p class="text-muted"><i class="fas fa-envelope me-2"></i>contact@ocrcvpro.com</p>
+                    <p class="text-muted"><i class="fas fa-phone me-2"></i>1900 xxxx</p>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-white">
+            <div class="text-center text-muted py-3">
+                <p class="mb-0">&copy; 2024 OCR CV Pro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

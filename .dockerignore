@@ -10,7 +10,5 @@ node_modules
 /.vscode
 /.idea
 /.DS_Store
-database.db
-db_local/database.db
 backends/devhubocr/target
 backends/devhubocr/.idea

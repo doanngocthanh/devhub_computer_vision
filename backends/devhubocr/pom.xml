@@ -147,6 +147,63 @@
             <artifactId>tess4j</artifactId>
             <version>5.4.0</version>
         </dependency>
+        <!-- BoofCV for image preprocessing (deskew, region detection) -->
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-feature</artifactId>
+            <version>0.41</version>
+
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-geo</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-io</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-ip-multiview</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-recognition</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-sfm</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-swing</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-types</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-all</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>boofcv-core</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>visualize</artifactId>
+            <version>0.26</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
