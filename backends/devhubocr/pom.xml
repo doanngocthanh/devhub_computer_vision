@@ -79,19 +79,7 @@
             <artifactId>onnxruntime</artifactId>
             <version>1.17.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.openpnp</groupId>
-            <artifactId>opencv</artifactId>
-            <version>4.7.0-0</version>
-        </dependency>
-        <!-- OpenCV for image preprocessing -->
-        <dependency>
-            <groupId>org.openpnp</groupId>
-            <artifactId>opencv</artifactId>
-            <version>4.7.0-0</version>
-        </dependency>
-
-        <!-- OpenCV for face detection -->
+        <!-- OpenCV (single declaration) -->
         <dependency>
             <groupId>org.openpnp</groupId>
             <artifactId>opencv</artifactId>
@@ -204,6 +192,12 @@
             <artifactId>visualize</artifactId>
             <version>0.26</version>
         </dependency>
+        <!-- Playwright for Java: allows running headless/full browsers programmatically -->
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.44.0</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -223,6 +217,15 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- exec plugin to allow running small Java mains (like Playwright runner) via Maven -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.devhub.ocr.playwright.PlaywrightRunner</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
