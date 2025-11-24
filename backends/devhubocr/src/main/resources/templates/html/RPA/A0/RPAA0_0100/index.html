@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RPA Scheduler Dashboard - RPAA0_0100</title>
+    <link rel="stylesheet" th:href="@{/css/tabler.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/6.5.1_css_all.min.css}" />
+    
+    <style>
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status-scheduled {
+            background: #206bc4;
+        }
+
+        .status-running {
+            background: #0ca678;
+            animation: pulse 2s infinite;
+        }
+
+        .status-paused {
+            background: #f59f00;
+        }
+
+        .status-stopped {
+            background: #d63939;
+        }
+
+        .status-completed {
+            background: #0ca678;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .event-log {
+            background: #1e293b;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 16px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .event-log pre {
+            margin: 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #334155;
+            color: #94a3b8;
+        }
+
+        .event-log pre:last-child {
+            border-bottom: none;
+        }
+
+        .job-log-modal {
+            background: #0f172a;
+            color: #10b981;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 16px;
+            border-radius: 8px;
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .sse-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        .sse-dot.connected {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .sse-dot.error {
+            background: #ef4444;
+        }
+
+        .card-stats {
+            border-left: 3px solid #206bc4;
+        }
+
+        .card-stats.running {
+            border-left-color: #0ca678;
+        }
+
+        .card-stats.paused {
+            border-left-color: #f59f00;
+        }
+
+        .card-stats.stopped {
+            border-left-color: #d63939;
+        }
+
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(32, 107, 196, 0.05);
+        }
+
+        .modal-header {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .badge-job-status {
+            padding: 0.35rem 0.65rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div th:replace="common/sidebar :: sidebar"></div>
+
+        <div class="page-wrapper">
+            <div th:replace="common/header :: header"></div>
+
+            <div class="page-body">
+                <div class="container-xl">
+                    <!-- Header Section -->
+                    <div class="page-header d-print-none">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <h2 class="page-title">
+                                    <i class="fa-solid fa-calendar-clock me-2"></i>
+                                    RPA Job Scheduler
+                                </h2>
+                                <div class="text-muted mt-1">Real-time job monitoring and management</div>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="d-flex gap-2">
+                                    <div class="sse-status">
+                                        <div class="sse-dot" id="sseDot"></div>
+                                        <small class="text-muted" id="sseStatusText">Connecting...</small>
+                                    </div>
+                                    <button class="btn btn-icon" id="refreshJobs" title="Refresh">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                    </button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#scheduleModal">
+                                        <i class="fa-solid fa-plus me-1"></i>
+                                        New Job
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row row-deck row-cards mb-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card card-stats">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Total Jobs</div>
+                                    </div>
+                                    <div class="h1 mb-0" id="statTotal">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card card-stats running">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Running</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-success" id="statRunning">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card card-stats paused">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Paused</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-warning" id="statPaused">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card card-stats">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Completed</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-muted" id="statCompleted">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="row row-deck row-cards">
+                        <!-- Jobs Table -->
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fa-solid fa-list me-2"></i>
+                                        Active Jobs
+                                    </h3>
+                                    <div class="card-actions">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                                            <label class="form-check-label" for="autoRefresh">Auto-refresh</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter table-hover card-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Job ID</th>
+                                                    <th>Class Name</th>
+                                                    <th>Status</th>
+                                                    <th class="w-1">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="jobsTableBody">
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted py-4">
+                                                        <i class="fa-solid fa-circle-info me-1"></i>
+                                                        No jobs scheduled yet
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event Log -->
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fa-solid fa-terminal me-2"></i>
+                                        Event Stream
+                                    </h3>
+                                    <div class="card-actions">
+                                        <button class="btn btn-icon btn-sm" id="clearEvents" title="Clear">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="event-log" id="eventLog">
+                                        <pre>Waiting for events...</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="common/footer :: footer"></div>
+        </div>
+    </div>
+
+    <!-- Schedule Job Modal -->
+    <div class="modal modal-blur fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-calendar-plus me-2"></i>
+                        Schedule New Job
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required">Class Name</label>
+                        <input type="text" class="form-control" id="modalClassName"
+                            value="com.devhub.ocr.RPA.A0.RPAA0_0100.plugins.Test"
+                            placeholder="Full qualified class name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Submit Time</label>
+                        <input type="text" class="form-control" id="modalSubmitTime" value="2025-12-01 12:00:00"
+                            placeholder="yyyy-MM-dd HH:mm:ss">
+                        <small class="form-hint">Format: yyyy-MM-dd HH:mm:ss</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">JSON Parameters</label>
+                        <textarea class="form-control" id="modalJsonParams" rows="4" placeholder='{"key": "value"}'>{
+  "name": "User",
+  "priority": "high"
+}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">File Path</label>
+                        <input type="text" class="form-control" id="modalFilePath" placeholder="/path/to/file.txt">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="scheduleJobBtn">
+                        <i class="fa-solid fa-check me-1"></i>
+                        Schedule Job
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Logs Modal -->
+    <div class="modal modal-blur fade" id="logModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-file-lines me-2"></i>
+                        Job Logs: <span id="logModalJobId"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="job-log-modal" id="jobLogContent">
+                        No logs available yet.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tabler.min.js}"></script>
+    <script>
+        // State Management
+        const state = {
+            jobs: {},
+            logs: {},
+            sseConnection: null,
+            reconnectAttempts: 0,
+            pageUnloading: false
+        };
+
+        const config = {
+            maxReconnectDelay: 30000,
+            renderDebounce: 200,
+            actionDebounce: 300,
+            maxEventLines: 50
+        };
+
+        let renderTimeout = null;
+        let lastActionTime = 0;
+
+        // Utility Functions
+        function updateSSEStatus(status, isConnected = false, isError = false) {
+            const dot = document.getElementById('sseDot');
+            const text = document.getElementById('sseStatusText');
+
+            if (dot) {
+                dot.className = 'sse-dot';
+                if (isConnected) dot.classList.add('connected');
+                if (isError) dot.classList.add('error');
+            }
+
+            if (text) text.textContent = status;
+        }
+
+        function addEventLine(data) {
+            const eventLog = document.getElementById('eventLog');
+            if (!eventLog) return;
+
+            const pre = document.createElement('pre');
+            const timestamp = new Date().toLocaleTimeString();
+
+            try {
+                const display = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                pre.textContent = `[${timestamp}] ${display}`;
+            } catch (err) {
+                pre.textContent = `[${timestamp}] ${String(data)}`;
+            }
+
+            eventLog.insertBefore(pre, eventLog.firstChild);
+
+            // Keep only last N events
+            while (eventLog.children.length > config.maxEventLines) {
+                eventLog.removeChild(eventLog.lastChild);
+            }
+        }
+
+        function addJobLog(jobId, line) {
+            if (!state.logs[jobId]) state.logs[jobId] = [];
+            state.logs[jobId].push(line);
+
+            // Update modal if it's showing this job
+            const modalJobId = document.getElementById('logModalJobId');
+            if (modalJobId && modalJobId.textContent === jobId) {
+                const content = document.getElementById('jobLogContent');
+                if (content) {
+                    content.textContent = state.logs[jobId].join('\n');
+                    content.scrollTop = content.scrollHeight;
+                }
+            }
+        }
+
+        function scheduleRender() {
+            if (renderTimeout) clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                renderJobs();
+                updateStats();
+                renderTimeout = null;
+            }, config.renderDebounce);
+        }
+
+        function getStatusBadgeClass(status) {
+            const map = {
+                'scheduled': 'bg-primary',
+                'running': 'bg-success',
+                'paused': 'bg-warning',
+                'stopped': 'bg-danger',
+                'completed': 'bg-success'
+            };
+            return map[status] || 'bg-secondary';
+        }
+
+        function renderJobs() {
+            const tbody = document.getElementById('jobsTableBody');
+            if (!tbody) return;
+
+            const jobs = Object.values(state.jobs);
+
+            if (jobs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            No jobs scheduled yet
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = jobs.map(job => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="status-indicator status-${job.status || 'scheduled'}"></span>
+                            <code class="text-muted">${job.jobId}</code>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-truncate" style="max-width: 200px;" title="${job.className}">
+                            ${job.className}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-job-status ${getStatusBadgeClass(job.status)}">
+                            ${job.status || 'unknown'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-list">
+                            <button class="btn btn-sm btn-icon" data-action="logs" data-id="${job.jobId}" title="View Logs">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-warning" data-action="pause" data-id="${job.jobId}" 
+                                    ${job.status === 'paused' ? 'disabled' : ''} title="Pause">
+                                <i class="fa-solid fa-pause"></i>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-success" data-action="resume" data-id="${job.jobId}" 
+                                    ${job.status !== 'paused' ? 'disabled' : ''} title="Resume">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-danger" data-action="stop" data-id="${job.jobId}" title="Stop">
+                                <i class="fa-solid fa-stop"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const jobs = Object.values(state.jobs);
+            const stats = {
+                total: jobs.length,
+                running: jobs.filter(j => j.status === 'running').length,
+                paused: jobs.filter(j => j.status === 'paused').length,
+                completed: jobs.filter(j => j.status === 'completed').length
+            };
+
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statRunning').textContent = stats.running;
+            document.getElementById('statPaused').textContent = stats.paused;
+            document.getElementById('statCompleted').textContent = stats.completed;
+        }
+
+        // SSE Connection
+        function connectSSE() {
+            if (state.pageUnloading) {
+                return;
+            }
+
+            // Close existing connection first
+            if (state.sseConnection) {
+                try {
+                    state.sseConnection.close();
+                } catch (e) {
+                    console.log('[SSE] Error closing old connection:', e);
+                }
+                state.sseConnection = null;
+            }
+
+            console.log('[SSE] Connecting... (attempt ' + (state.reconnectAttempts + 1) + ')');
+            updateSSEStatus('Connecting...');
+
+            try {
+                state.sseConnection = new EventSource('/RPA/A0/RPAA0_0100/events');
+
+                state.sseConnection.onopen = () => {
+                    console.log('[SSE] Connected');
+                    updateSSEStatus('Connected', true);
+                    state.reconnectAttempts = 0;
+                    addEventLine({ type: 'system', message: 'Event stream connected' });
+                };
+
+                state.sseConnection.onerror = (e) => {
+                    console.error('[SSE] Connection error');
+
+                    // Close the connection
+                    if (state.sseConnection) {
+                        try {
+                            state.sseConnection.close();
+                        } catch (closeErr) {
+                            console.log('[SSE] Error during close:', closeErr);
+                        }
+                        state.sseConnection = null;
+                    }
+
+                    if (state.pageUnloading) {
+                        updateSSEStatus('Disconnected');
+                        return;
+                    }
+
+                    state.reconnectAttempts++;
+                    const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts - 1), config.maxReconnectDelay);
+                    updateSSEStatus(`Reconnecting in ${Math.round(delay / 1000)}s...`, false, true);
+
+                    addEventLine({
+                        type: 'system',
+                        message: `Connection lost. Reconnecting in ${Math.round(delay / 1000)}s... (attempt ${state.reconnectAttempts})`
+                    });
+
+                    setTimeout(connectSSE, delay);
+                };
+
+                state.sseConnection.onmessage = (e) => {
+                    let data;
+                    try {
+                        data = JSON.parse(e.data);
+                    } catch {
+                        addEventLine(e.data);
+                        return;
+                    }
+
+                    // Handle log messages
+                    if (data.message && data.jobId) {
+                        addJobLog(data.jobId, data.message);
+                        return;
+                    }
+
+                    // Handle job events
+                    if (data.type && data.jobId) {
+                        addEventLine(data);
+
+                        if (!state.jobs[data.jobId]) {
+                            state.jobs[data.jobId] = {
+                                jobId: data.jobId,
+                                className: data.className || 'unknown',
+                                status: 'scheduled'
+                            };
+                        }
+
+                        const statusMap = {
+                            'scheduled': 'scheduled',
+                            'running': 'running',
+                            'paused': 'paused',
+                            'resumed': 'running',
+                            'stopped': 'stopped',
+                            'completed': 'completed'
+                        };
+
+                        if (statusMap[data.type]) {
+                            state.jobs[data.jobId].status = statusMap[data.type];
+                        }
+
+                        scheduleRender();
+                    } else {
+                        addEventLine(data);
+                    }
+                };
+            } catch (err) {
+                console.error('[SSE] Failed to create EventSource:', err);
+                updateSSEStatus('Failed', false, true);
+
+                // Retry after delay
+                if (!state.pageUnloading) {
+                    state.reconnectAttempts++;
+                    const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts - 1), config.maxReconnectDelay);
+                    setTimeout(connectSSE, delay);
+                }
+            }
+        }
+
+        // Job Actions
+        async function scheduleJob() {
+            const body = {
+                className: document.getElementById('modalClassName').value,
+                submitTime: document.getElementById('modalSubmitTime').value,
+                jsonParams: document.getElementById('modalJsonParams').value,
+                filePath: document.getElementById('modalFilePath').value
+            };
+
+            try {
+                const res = await fetch('/RPA/A0/RPAA0_0100/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) throw new Error('Schedule failed');
+
+                const result = await res.json();
+                state.jobs[result.jobId] = {
+                    jobId: result.jobId,
+                    className: body.className,
+                    status: 'scheduled'
+                };
+
+                scheduleRender();
+
+                // Close modal using data-bs-dismiss
+                const closeBtn = document.querySelector('#scheduleModal [data-bs-dismiss="modal"]');
+                if (closeBtn) closeBtn.click();
+
+                addEventLine({ type: 'info', message: `Job ${result.jobId} scheduled successfully` });
+            } catch (err) {
+                console.error('Failed to schedule job:', err);
+                alert('Error scheduling job: ' + err.message);
+            }
+        }
+
+        async function handleJobAction(action, jobId) {
+            const now = Date.now();
+            if (now - lastActionTime < config.actionDebounce) return;
+            lastActionTime = now;
+
+            if (action === 'logs') {
+                showJobLogs(jobId);
+                return;
+            }
+
+            if (action === 'stop' && !confirm('Are you sure you want to stop this job?')) {
+                return;
+            }
+
+            try {
+                await fetch(`/RPA/A0/RPAA0_0100/job/${jobId}/${action}`, { method: 'POST' });
+            } catch (err) {
+                console.error(`${action} failed:`, err);
+                alert(`Error: ${err.message}`);
+            }
+        }
+
+        function showJobLogs(jobId) {
+            document.getElementById('logModalJobId').textContent = jobId;
+            const content = document.getElementById('jobLogContent');
+            content.textContent = (state.logs[jobId] || ['No logs available yet.']).join('\n');
+            content.scrollTop = content.scrollHeight;
+
+            // Open modal using data-bs-toggle
+            const triggerBtn = document.querySelector('[data-bs-target="#logModal"]');
+            if (!triggerBtn) {
+                // Create hidden trigger button if not exists
+                const btn = document.createElement('button');
+                btn.setAttribute('data-bs-toggle', 'modal');
+                btn.setAttribute('data-bs-target', '#logModal');
+                btn.style.display = 'none';
+                btn.id = 'logModalTrigger';
+                document.body.appendChild(btn);
+                btn.click();
+            } else {
+                triggerBtn.click();
+            }
+        }
+
+        // Event Listeners
+        function initializeApp() {
+            console.log('[App] Initializing...');
+
+            // Schedule button
+            document.getElementById('scheduleJobBtn')?.addEventListener('click', scheduleJob);
+
+            // Refresh button
+            document.getElementById('refreshJobs')?.addEventListener('click', () => {
+                renderJobs();
+                updateStats();
+            });
+
+            // Clear events
+            document.getElementById('clearEvents')?.addEventListener('click', () => {
+                const eventLog = document.getElementById('eventLog');
+                if (eventLog) eventLog.innerHTML = '<pre>Events cleared.</pre>';
+            });
+
+            // Table actions
+            document.getElementById('jobsTableBody')?.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn || btn.disabled) return;
+
+                const action = btn.getAttribute('data-action');
+                const id = btn.getAttribute('data-id');
+                if (action && id) handleJobAction(action, id);
+            });
+
+            // Connect SSE
+            connectSSE();
+            console.log('[App] Initialization complete');
+        }
+
+        // Lifecycle
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        window.addEventListener('beforeunload', () => {
+            state.pageUnloading = true;
+            console.log('[App] Page unloading, closing SSE connection');
+            if (state.sseConnection) {
+                try {
+                    state.sseConnection.close();
+                } catch (e) {
+                    console.log('[App] Error closing SSE on unload:', e);
+                }
+                state.sseConnection = null;
+            }
+        });
+
+        // Handle visibility change for better mobile/tab switching behavior
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('[App] Page hidden');
+                if (renderTimeout) {
+                    clearTimeout(renderTimeout);
+                    renderTimeout = null;
+                }
+            } else {
+                console.log('[App] Page visible, checking connection');
+                // Check if connection is still alive
+                if (!state.sseConnection || state.sseConnection.readyState === EventSource.CLOSED) {
+                    console.log('[App] Reconnecting SSE after visibility change');
+                    connectSSE();
+                }
+                renderJobs();
+                updateStats();
+            }
+        });
+    </script>
+</body>
+
+</html>

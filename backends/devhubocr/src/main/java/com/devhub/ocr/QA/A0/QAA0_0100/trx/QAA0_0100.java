@@ -44,6 +44,17 @@ public class QAA0_0100 {
         this.contactsService = contactsService;
     }
 
+    // Helper to safely send to an SseEmitter. Returns false when send failed (client disconnected)
+    private boolean safeSend(SseEmitter emitter, Object data) {
+        try {
+            emitter.send(data);
+            return true;
+        } catch (Exception ex) {
+            try { emitter.complete(); } catch (Exception ignored) {}
+            return false;
+        }
+    }
+
     @GetMapping({ "", "/" })
     public String index(Model model) {
         UserObject u = AuthContext.get();
@@ -288,7 +299,7 @@ public class QAA0_0100 {
                 Pattern chatIdPattern = Pattern.compile("\"chat\"\\s*:\\s*\\{[^}]*\\\"id\\\"\\s*:\\s*([\\-0-9]+)");
                 Pattern updateIdPattern = Pattern.compile("\"update_id\"\\s*:\\s*(\\d+)");
 
-                emitter.send("START: waiting for messages for chatId=" + chatId + " (timeout=" + timeoutSeconds + "s)");
+                if (!safeSend(emitter, "START: waiting for messages for chatId=" + chatId + " (timeout=" + timeoutSeconds + "s)")) { exec.shutdownNow(); return; }
 
                 while (System.currentTimeMillis() < deadline) {
                     String url = "https://api.telegram.org/bot" + token + "/getUpdates?timeout=2" + (offset > 0 ? "&offset=" + offset : "");
@@ -297,7 +308,7 @@ public class QAA0_0100 {
                     String body = resp.body();
 
                     // send raw response status for debugging
-                    emitter.send("HTTP: " + resp.statusCode());
+                    if (!safeSend(emitter, "HTTP: " + resp.statusCode())) { exec.shutdownNow(); return; }
 
                     // update offset
                     Matcher mu = updateIdPattern.matcher(body);
@@ -307,7 +318,7 @@ public class QAA0_0100 {
                     }
                     if (maxUpdate >= 0) {
                         offset = maxUpdate + 1;
-                        emitter.send("offset -> " + offset);
+                        if (!safeSend(emitter, "offset -> " + offset)) { exec.shutdownNow(); return; }
                     }
 
                     // check for chat id in payload
@@ -315,7 +326,7 @@ public class QAA0_0100 {
                     boolean found = false;
                     while (m.find()) {
                         String foundId = m.group(1);
-                        emitter.send("found chat id in updates: " + foundId);
+                        if (!safeSend(emitter, "found chat id in updates: " + foundId)) { exec.shutdownNow(); return; }
                         // try to extract sender info and persist contact (if available)
                         try {
                             if (currentUserId != null) {
@@ -349,8 +360,8 @@ public class QAA0_0100 {
                         }
                     }
                     if (found) {
-                        emitter.send("RECEIVED: message from chatId=" + chatId);
-                        emitter.complete();
+                        if (!safeSend(emitter, "RECEIVED: message from chatId=" + chatId)) { exec.shutdownNow(); return; }
+                        try { emitter.complete(); } catch (Exception ignored) {}
                         return;
                     }
 
@@ -358,11 +369,11 @@ public class QAA0_0100 {
                     try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
                 }
 
-                emitter.send("TIMEOUT: no message within " + timeoutSeconds + "s");
-                emitter.complete();
+                if (!safeSend(emitter, "TIMEOUT: no message within " + timeoutSeconds + "s")) { exec.shutdownNow(); return; }
+                try { emitter.complete(); } catch (Exception ignored) {}
             } catch (Exception ex) {
-                try { emitter.send("ERROR: " + ex.getMessage()); } catch (Exception ignored) {}
-                emitter.completeWithError(ex);
+                safeSend(emitter, "ERROR: " + ex.getMessage());
+                try { emitter.completeWithError(ex); } catch (Exception ignored) {}
             } finally {
                 exec.shutdownNow();
             }
